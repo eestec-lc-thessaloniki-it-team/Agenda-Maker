@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.idea/*
+
 *.py[cod]
 *$py.class
 
@@ -101,14 +103,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
 # Spyder project settings
 .spyderproject
@@ -127,3 +121,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#This is the file that contains your configs
+mongoDB/init-mongo.js
+mongoDB/docker-compose.yml
+
+
+
