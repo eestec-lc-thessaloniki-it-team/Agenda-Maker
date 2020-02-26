@@ -126,6 +126,7 @@ dmypy.json
 #This is the file that contains your configs
 mongoDB/init-mongo.js
 mongoDB/docker-compose.yml
+mongoDB/mongo-volume/*
 
 
 

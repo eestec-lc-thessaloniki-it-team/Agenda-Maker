@@ -3,8 +3,8 @@
 import sys,os
 
 #fill these 2 with your username and database name that you give in the init-mongo.js
-username="mavroudo"
-dbname="mongo_db"
+username="root"
+dbname="lcThessaloniki"
 
 help=\
 """The valid parameters are :
