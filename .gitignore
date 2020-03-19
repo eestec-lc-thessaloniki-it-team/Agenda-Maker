@@ -127,6 +127,6 @@ dmypy.json
 mongoDB/init-mongo.js
 mongoDB/docker-compose.yml
 mongoDB/mongo-volume/*
-
+venv/*
 
 
