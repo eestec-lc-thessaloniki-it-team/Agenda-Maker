@@ -1,6 +1,10 @@
 from BasicClasses.Topic import Topic
 
-
+"""
+This class represents a section of the agenda of a general meeting.
+Every section contains the topics that are going to be discussed.
+A function that converts a section's data into Json format(makeJson) is also included.
+"""
 class Section:
     def __init__(self, section_name, topics):
         self.section_name = section_name

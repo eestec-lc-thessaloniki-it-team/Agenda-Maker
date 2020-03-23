@@ -1,3 +1,9 @@
+
+"""
+This class represents a Topic for conversation in a specific section of a General Meeting (GM)
+It can be a votable topic with a yes/no/abstain vote or a multiple choice vote, using an open or close ballot system.
+A function that converts a Topic's data into Json format(makeJson) is also included.
+"""
 class Topic:
 
     def __init__(self, topic_name, votable, yes_no_vote = None, open_ballot = None, possible_answers = None):
