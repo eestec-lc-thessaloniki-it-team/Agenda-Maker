@@ -3,10 +3,10 @@ from datetime import date
 
 # fill this with your personal
 username="root"
-passwrod="rootPass"
+passwrod=""
 database="lcThessaloniki"
 
-url="""mongodb://{}:{}@127.0.0.1/{}""".format(username,passwrod,database)
+url="""mongodb://{}:{}@116.203.85.249/{}""".format(username,passwrod,database)
 client=MongoClient(url,authSource="admin")['lcThessaloniki']
 
 data={
