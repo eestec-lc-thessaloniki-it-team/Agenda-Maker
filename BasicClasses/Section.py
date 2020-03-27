@@ -11,6 +11,14 @@ class Section:
         self.section_name = section_name
         self.topics = topics
 
+    def __eq__(self, other):
+        if not self.section_name == other.section_name:
+            return False
+        for index, topic in enumerate(self.topics):
+            if topic != other.topics[index]:
+                return False
+        return True
+
     def makeJson(self):
         """
             A function that converts a Section's data into Json format

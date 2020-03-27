@@ -1,4 +1,3 @@
-
 """
 This class represents a Topic for conversation in a specific section of a General Meeting (GM)
 It can be a votable topic with a yes/no/abstain vote or a multiple choice vote, using an open or close ballot system.
@@ -13,6 +12,10 @@ class Topic:
         self.yes_no_vote = yes_no_vote
         self.open_ballot = open_ballot
         self.possible_answers = possible_answers
+
+    def __eq__(self, other):
+        return (
+                    self.topic_name == other.topic_name and self.votable == other.votable and self.yes_no_vote == other.yes_no_vote and self.open_ballot == other.open_ballot)
 
     def makeJson(self):
         """

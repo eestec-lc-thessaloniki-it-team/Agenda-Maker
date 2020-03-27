@@ -131,7 +131,15 @@ class Agenda:
             self.sections[section_position].topics[topic_position] = newTopic
             return True
         return False
-    
+
+    def __eq__(self, other):
+        if not (self.id == other.id and self.lc == other.lc):
+            return False
+        for index, section in enumerate(self.sections):
+            if not section == other.sections[index]:
+                return False
+        return True
+
     def makeJson(self):
         """
             A function that converts an Agenda's data into Json format
