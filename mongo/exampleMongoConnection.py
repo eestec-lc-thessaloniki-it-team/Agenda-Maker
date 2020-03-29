@@ -8,36 +8,84 @@ passwrod = "rootPassword"
 database = "lcThessaloniki"
 
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(username, passwrod, database)
-
-data2 = {'id': '1', 'date': '23-3-20', 'sections': [{'section_name': 'gmElections', 'topics': [
-    {'topic_name': 'openGmstaffEl', 'votable': True, 'yes_no_vote': True, 'open_ballot': False},
-    {'topic_name': 'MinutesElection', 'votable': True, 'yes_no_vote': False,
-     'possible_answers': ['Marios', 'Tasos', 'urMOM'], 'open_ballot': True}]}, {'section_name': 'WorkShop', 'topics': [
-    {'topic_name': 'openVote', 'votable': True, 'yes_no_vote': True, 'open_ballot': False},
-    {'topic_name': 'Future of Workshop', 'votable': True, 'yes_no_vote': False,
-     'possible_answers': ['Cancelation', 'Postpone', 'procced'], 'open_ballot': True}]}, {'section_name': 'Krasia',
-                                                                                          'topics': [
-                                                                                              {'topic_name': 'openVote',
-                                                                                               'votable': True,
-                                                                                               'yes_no_vote': True,
-                                                                                               'open_ballot': False}, {
-                                                                                                  'topic_name': 'Wanna go ?',
-                                                                                                  'votable': True,
-                                                                                                  'yes_no_vote': True,
-                                                                                                  'open_ballot': True},
-                                                                                              {'topic_name': 'Where',
-                                                                                               'votable': True,
-                                                                                               'yes_no_vote': False,
-                                                                                               'possible_answers': [
-                                                                                                   'Omprella, Podhlato, SomeWeirdAssPlace'],
-                                                                                               'open_ballot': True},
-                                                                                              {'topic_name': 'Lets go',
-                                                                                               'votable': False}]}]}
 data = {
+    "id": "1",
+    "date": date.today().strftime("%d/%m/%Y"),
+    "lc": "thessaloniki",
+    "sections": [
+        {
+            "section_name": "gmElections",
+            "topics": [
+                {
+                "topic_name": "openGmstaffEl",
+                "votable": "True",
+                "yes_no_vote": "True",
+                "open_ballot": "False"
+                },
+                {
+                "topic_name": "MinutesElection",
+                "votable": "True",
+                "yes_no_vote": "False",
+                "possible_answers": ["Marios", "Tasos", "urMOM"
+                    ],
+                "open_ballot": "True"
+                }
+            ]
+        },
+        {
+            "section_name": "WorkShop",
+            "topics": [
+                {
+                "topic_name": "openVote",
+                "votable": "True",
+                "yes_no_vote": "True",
+                "open_ballot": "False"
+                },
+                {
+                "topic_name": "Future of Workshop",
+                "votable": "True",
+                "yes_no_vote": "False",
+                "possible_answers": ["Cancelation", "Postpone", "procced"],
+                "open_ballot": "True"
+                }
+            ]
+        },
+        {
+            "section_name": "Krasia",
+            "topics": [
+                {
+                    "topic_name": "openVote",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
+                },
+                {
+                    "topic_name": "Wanna go ?",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "True"
+                },
+                {
+                    "topic_name": "Where",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Omprella, Podhlato, SomeWeirdAssPlace"
+                    ],
+                    "open_ballot": "True"
+                },
+                {
+                    "topic_name": "Lets go",
+                    "votable": "False"
+                }
+            ]
+        }
+    ]
+}
+data2 = {
     'id': '2',
     'lc': 'thessaloniki',
     'date': date.today().strftime("%d/%m/%Y"),
-    'agenda': [  # this will be a list of objects  but for now lets assume that there are title, subtitle
+    'sections': [  # this will be a list of objects  but for now lets assume that there are title, subtitle
         {
             'title': 'this is the first topic',
             'subtitle': 'this is its subtitle1'
@@ -49,17 +97,24 @@ data = {
     ]
 }
 
-newdata = {
-    'id': '3',
-    'lc': 'thessaloniki',
-    'date': date.today().strftime("%d/%m/%Y"),
-    'agenda': [  # this will be a list of objects  but for now lets assume that there are title, subtitle
-        {
-            'title': 'this is the first topic',
-            'subtitle': 'this is its subtitle1'
-        }
-    ]
-}
+def agendaJsonToAgendaObject(agenda_json, agenda_id):
+    sections = []
+    jsonSection = list(agenda_json.get("sections"))
+    for sec in jsonSection:
+        jsonTopics = list(sec.get("topics"))
+        topics = []
+
+        for jsontopic in jsonTopics:
+            topic = Topic(jsontopic.get("topic_name"), jsontopic.get("votable"))
+            topics.append(topic)
+        section = Section(sec.get("section_name"), topics)
+        sections.append(section)
+    object = Agenda(agenda_json.get("date"), agenda_id, agenda_json.get("lc"), sections)
+    return object
+
+def topicJsonToTopicObject(topic_json):
+    topic = Topic(topic_json.get("topic_name"), topic_json.get("votable"))
+    return topic
 
 
 class connectMongo:
@@ -92,8 +147,59 @@ class connectMongo:
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         return jsonReturned
 
+    ### TO DO: Convert sections json to objects ###
+    def getAgendaObjectById(self, agenda_id):
+        jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
+        object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
+        return object
+
     def updateAgenda(self, agenda_id, new_agenda):
-        return self.db.agendas.update_one({'id': agenda_id}, {'$set': new_agenda})
+        return self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+
+    def createNewSection(self, agenda_id, section_name):
+        """
+        Get agenda
+        Make it object
+        Add session with name
+        Update agenda
+        :param agenda_id:
+        :param section_name:
+        :return:
+        """
+        jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
+        object = agendaJsonToAgendaObject(jsonReturned, agenda_id)
+        object.addSection(section_name)
+        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
+        return object
+
+
+    def createNewSectionInPosition(self, agenda_id, section_name, position):
+        """
+        Get agenda
+        Make it object
+        Add session with name
+        Update agenda
+        :param agenda_id:
+        :param section_name:
+        :return:
+        """
+
+        jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
+        sections = []
+        jsonSection = list(jsonReturned.get("sections"))
+        for sec in jsonSection:
+            jsonTopics = list(sec.get("topics"))
+            topics = []
+
+            for jsontopic in jsonTopics:
+                topic = Topic(jsontopic.get("topic_name"), jsontopic.get("votable"))
+                topics.append(topic)
+            section = Section(sec.get("section_name"), topics)
+            sections.append(section)
+        object = Agenda(jsonReturned.get("date"), agenda_id, jsonReturned.get("lc"), sections)
+        object.addSectionInPosition(section_name, position)
+        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
+        return object
 
     def createNewTopic(self, agenda_id, section_position, topic_position, topic_json):
         """
@@ -105,20 +211,13 @@ class connectMongo:
         :param topic_json:
         :return:
         """
-        pass
 
-    def createNewSession(self, agenda_id, session_name):
-        """
-        Get agenda
-        Make it object
-        Add session with name
-        Update agenda
-        :param agenda_id:
-        :param session_name:
-        :return:
-        """
-        x = self.getAgendaById(agenda_id)
-        return self.db.agendas.insert_one(session_name)
+        jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
+        object= agendaJsonToAgendaObject(jsonReturned, agenda_id)
+        topic = topicJsonToTopicObject(topic_json)
+        object.addTopicInPosition(section_position, topic, topic_position)
+        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
+        return object
 
     def deleteNewTopic(self, agenda_id, topic_name):
         """
@@ -147,9 +246,24 @@ class connectMongo:
     def deleteAgenda(self, agenda_id):
         return self.db.agendas.delete_many({'id': agenda_id})
 
-# mongo = connectMongo()
-#
-# mongo.createNewAgenda(data)
-# print(mongo.getAgendaById('2'))
-#
-# print(mongo.getAllDatabasesFromLC())
+
+def print_agenda(agenda):
+    print(agenda.id, agenda.date, agenda.lc, agenda.sections)
+
+mongo = connectMongo()
+
+a = mongo.createNewAgenda(data)
+print_agenda(a)
+
+mongo.updateAgenda(a.id, data)
+b = mongo.getAgendaObjectById(a.id)
+print_agenda(b)
+
+mongo.createNewSection(a.id, 'Krasiaaaaa')
+mongo.createNewSectionInPosition(a.id, 'Krasiaaaaaa', 0)
+b = mongo.getAgendaObjectById(a.id)
+print_agenda(b)
+
+mongo.createNewTopic(b.id,0,0,{'topic_name': 'openGmstaffEl', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
+c = mongo.getAgendaObjectById(b.id)
+print_agenda(c)
