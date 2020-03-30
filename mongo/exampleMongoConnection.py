@@ -7,6 +7,8 @@ import mongo.user
 database = "lcThessaloniki"
 
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
+
+### Egw toy eipa na ta svisoume ta data!!!
 data = {
     "date": date.today().strftime("%d/%m/%Y"),
     "lc": "thessaloniki",
@@ -267,6 +269,7 @@ class connectMongo:
 def print_agenda(agenda):
     print(agenda.date, agenda.id, agenda.lc, agenda.sections)
 
+"""
 mongo = connectMongo()
 
 a = mongo.createNewAgenda(data)
@@ -289,7 +292,7 @@ print_agenda(c)
 mongo.deleteSection(a.id,1)
 d=mongo.getAgendaById(a.id)
 print_agenda(d)
-"""
+
 mongo.deleteSection(a.id,0)
 d = mongo.getAgendaObjectById(a.id)
 print_agenda(d)
@@ -302,5 +305,4 @@ mongo.deleteAll()
 
 s = mongo.getAllAgendas()
 print(list(s))
-
 """
