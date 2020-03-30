@@ -104,7 +104,7 @@ def agendaJsonToAgendaObject(agenda_json, agenda_id):
         topics = []
 
         for jsontopic in jsonTopics:
-            topic = Topic(jsontopic.get("topic_name"), jsontopic.get("votable"))
+            topic = getTopicFromJson(jsontopic)
             topics.append(topic)
         section = Section(sec.get("section_name"), topics)
         sections.append(section)
@@ -285,6 +285,10 @@ print_agenda(b)
 mongo.createNewTopic(b.id,0,0,{'topic_name': 'openGmstaffEl', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
 c = mongo.getAgendaById(b.id)
 print_agenda(c)
+
+mongo.deleteSection(a.id,1)
+d=mongo.getAgendaById(a.id)
+print_agenda(d)
 """
 mongo.deleteSection(a.id,0)
 d = mongo.getAgendaObjectById(a.id)
