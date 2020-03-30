@@ -25,7 +25,7 @@ data={
 }
 
 db=client.lcThessaloniki #will create a database named lcThessaloniki
-result=db.agendas.insert_one(data) # will create a collection named agenas in the database lcThessaloniki and insert the data
+result=db.agendas.insert_one(data) # will create a collection named agendas in the database lcThessaloniki and insert the data
 print(result.inserted_id)
 
 # lets retrieve to see if we got them
