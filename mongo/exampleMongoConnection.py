@@ -7,26 +7,26 @@ import mongo.user
 database = "lcThessaloniki"
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
-def agendaJsonToAgendaObject(agenda_json, agenda_id):
-    """
-    Converts Agenda Json to an Object
-    :param agenda_json:
-    :param agenda_id:
-    :return: Agenda Object
-    """
-    sections = []
-    jsonSection = list(agenda_json.get("sections"))
-    for sec in jsonSection:
-        jsonTopics = list(sec.get("topics"))
-        topics = []
-
-        for jsontopic in jsonTopics:
-            topic = getTopicFromJson(jsontopic)
-            topics.append(topic)
-        section = Section(sec.get("section_name"), topics)
-        sections.append(section)
-    object = Agenda(agenda_json.get("date"), agenda_json.get("lc"), agenda_id, sections)
-    return object
+# def agendaJsonToAgendaObject(agenda_json, agenda_id):
+#     """
+#     Converts Agenda Json to an Object
+#     :param agenda_json:
+#     :param agenda_id:
+#     :return: Agenda Object
+#     """
+#     sections = []
+#     jsonSection = list(agenda_json.get("sections"))
+#     for sec in jsonSection:
+#         jsonTopics = list(sec.get("topics"))
+#         topics = []
+#
+#         for jsontopic in jsonTopics:
+#             topic = getTopicFromJson(jsontopic)
+#             topics.append(topic)
+#         section = Section(sec.get("section_name"), topics)
+#         sections.append(section)
+#     object = Agenda(agenda_json.get("date"), agenda_json.get("lc"), agenda_id, sections)
+#     return object
 
 def print_agenda(agenda):
     """
@@ -106,8 +106,7 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = agendaJsonToAgendaObject(jsonReturned, agenda_id)
-        #object = getAgendaFromJson(jsonReturned)
+        object = getAgendaFromJson(jsonReturned)
         object.addSection(section_name)
         self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
         return object
@@ -121,8 +120,7 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        # object = getAgendaFromJson(jsonReturned)
-        object = agendaJsonToAgendaObject(jsonReturned,agenda_id)
+        object = getAgendaFromJson(jsonReturned)
         object.addSectionInPosition(section_name, position)
         self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
         return object
@@ -137,8 +135,7 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        # object = getAgendaFromJson(jsonReturned)
-        object= agendaJsonToAgendaObject(jsonReturned, agenda_id)
+        object = getAgendaFromJson(jsonReturned)
         topic = getTopicFromJson(topic_json)
         object.addTopicInPosition(section_position, topic, topic_position)
         self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
@@ -160,8 +157,7 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        # object = getAgendaFromJson(jsonReturned)
-        object = agendaJsonToAgendaObject(jsonReturned, agenda_id)
+        object = getAgendaFromJson(jsonReturned)
         object.deleteSection(position)
         self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
         return object
@@ -175,8 +171,7 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        # object = getAgendaFromJson(jsonReturned)
-        object = agendaJsonToAgendaObject(jsonReturned, agenda_id)
+        object = getAgendaFromJson(jsonReturned)
         object.deleteTopic(section_position, topic_position)
         self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
         return object
@@ -187,5 +182,3 @@ class connectMongo:
         :return: empty list
         """
         return self.db.agendas.drop()
-
-mongo = connectMongo()
