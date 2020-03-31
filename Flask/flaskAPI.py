@@ -8,7 +8,7 @@ from BasicClasses.Agenda import *
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-connectToMongo = connectMongo()
+connectToMongo = connectMongo()  # connection to mongo
 print(APP_ROOT)
 
 
@@ -23,7 +23,8 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    objectAgenda = getAgendaFromJson(connectToMongo.createNewAgenda(request.json))
+    objectAgenda = connectToMongo.createNewAgenda(request.json)
+    print(objectAgenda)
     return jsonify(response=200, agenda=objectAgenda.makeJson())
 
 
@@ -37,13 +38,24 @@ def getAgendaByID():
     return jsonify(response=200, agenda=objectAgenda.makeJson())
 
 
-@app.route("/create-user", methods=['POST'])
-def createUser():
-    print(request.json)
-
-    xarh = Person(request.json.get("age"), request.json.get("name"), request.json.get("gender"))
-    print(xarh.makeJson())  # add database
-    return 200
+@app.route("/create-section", methods=['POST'])
+def createSection():
+    """
+    In request I expect agenda_id, section_name, maybe position
+    :return:
+    """
+    # first check if everything we need is there
+    print(request)
+    data = request.json
+    if "id" in data and "section_name" in data:
+        if "position" in data:
+            object = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
+                                                               data.get("position"))
+        else:
+            object = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
+        return jsonify(response=200, agenda=object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
 
 app.run()
