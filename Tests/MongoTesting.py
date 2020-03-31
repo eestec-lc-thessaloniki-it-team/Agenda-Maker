@@ -8,17 +8,17 @@ data = {
             "section_name": "gmElections",
             "topics": [
                 {
-                "topic_name": "openGmstaffEl",
-                "votable": "True",
-                "yes_no_vote": "True",
-                "open_ballot": "False"
+                    "topic_name": "openGmstaffEl",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
                 },
                 {
-                "topic_name": "MinutesElection",
-                "votable": "True",
-                "yes_no_vote": "False",
-                "possible_answers": ["Marios", "Tasos", "urMOM"],
-                "open_ballot": "True"
+                    "topic_name": "MinutesElection",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                    "open_ballot": "True"
                 }
             ]
         },
@@ -26,17 +26,17 @@ data = {
             "section_name": "WorkShop",
             "topics": [
                 {
-                "topic_name": "openVote",
-                "votable": "True",
-                "yes_no_vote": "True",
-                "open_ballot": "False"
+                    "topic_name": "openVote",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
                 },
                 {
-                "topic_name": "Future of Workshop",
-                "votable": "True",
-                "yes_no_vote": "False",
-                "possible_answers": ["Cancelation", "Postpone", "procced"],
-                "open_ballot": "True"
+                    "topic_name": "Future of Workshop",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Cancelation", "Postpone", "procced"],
+                    "open_ballot": "True"
                 }
             ]
         },
@@ -93,37 +93,38 @@ def print_agenda(agenda):
 
 mongo = connectMongo()
 """
-
+mongo = connectMongo()
 a = mongo.createNewAgenda(data)
-print_agenda(a)                                                         # Prints the new agenda that was created
+print_agenda(a)  # Prints the new agenda that was created
 
 aa = mongo.createNewAgenda(data2)
 s = mongo.getAllAgendas()
-print(list(s))                                                          # Prints a list of json agendas
+print(list(s))  # Prints a list of json agendas
 
 mongo.updateAgenda(a.id, data)
 b = mongo.getAgendaById(a.id)
-print_agenda(b)                                                         # Prints updated agenda
+print_agenda(b)  # Prints updated agenda
 
 s = mongo.getAllAgendas()
-print(list(s))                                                          # Prints a list of json agendas
+print(list(s))  # Prints a list of json agendas
 
 mongo.createNewSectionInPosition(a.id, 'Krasiaaaaaa', 0)
 c = mongo.getAgendaById(a.id)
-print_agenda(c)                                                         # Prints agenda with new section
+print_agenda(c)  # Prints agenda with new section
 
-mongo.deleteSection(a.id,0)
+mongo.deleteSection(a.id, 0)
 d = mongo.getAgendaById(a.id)
-print_agenda(d)                                                         # Prints agenda with deleted section
+print_agenda(d)  # Prints agenda with deleted section
 
-mongo.createNewTopic(a.id,0,0,{'topic_name': 'Test', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
+mongo.createNewTopic(a.id, 0, 0,
+                     {'topic_name': 'Test', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
 e = mongo.getAgendaById(a.id)
-print_agenda(e)                                                         # Prints agenda with new topic
+print_agenda(e)  # Prints agenda with new topic
 
-mongo.deleteTopic(a.id,0,0)
+mongo.deleteTopic(a.id, 0, 0)
 f = mongo.getAgendaById(a.id)
-print_agenda(f)                                                         # Prints agenda with deleted topic
+print_agenda(f)  # Prints agenda with deleted topic
 
-mongo.deleteAll()                                                       # Deletes all agendas
+mongo.deleteAll()  # Deletes all agendas
 s = mongo.getAllAgendas()
 print(list(s))
