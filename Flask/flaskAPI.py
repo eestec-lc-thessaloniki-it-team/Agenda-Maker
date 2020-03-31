@@ -58,4 +58,19 @@ def createSection():
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
 
+@app.route("/create-topic", methods=['POST'])
+def createTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position, topic_json
+    :return:
+    """
+    data = request.json
+    if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        object = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
+                                               data.get("topic_json"))
+        return jsonify(response=200, agenda=object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+
 app.run()
