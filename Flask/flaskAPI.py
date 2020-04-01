@@ -72,5 +72,16 @@ def createTopic():
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
-
+@app.route("/update-agenda", methods=['POST'])
+def updateAgenda():
+    """
+    In request I expect agenda_id, new_agenda
+    :return:
+    """
+    data = request.json
+    if "id" in data and "new_agenda" in data:
+        object = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+        return jsonify(response=200, agenda=object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
 app.run()
