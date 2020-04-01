@@ -84,4 +84,18 @@ def updateAgenda():
         return jsonify(response=200, agenda=object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+@app.route("/delete-agenda", methods=['POST'])
+def deleteAgenda():
+    """
+    In request I expect agenda_id
+    :return:
+    """
+    data = request.json
+    if "id" in data:
+        connectToMongo.deleteAgenda(data.get("id"))
+        return jsonify(response=200, msg="Agenda has been deleted")
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
 app.run()
