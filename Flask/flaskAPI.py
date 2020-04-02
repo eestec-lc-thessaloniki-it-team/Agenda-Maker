@@ -1,8 +1,6 @@
 import flask, os
 from flask import request, jsonify
-from Flask.DemoClasses import Person
 from mongo.connectMongo import *
-
 from BasicClasses.Agenda import *
 
 app = flask.Flask(__name__)
@@ -57,4 +55,5 @@ def createSection():
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
 
-app.run()
+if __name__ == '__main__':
+    app.run()
