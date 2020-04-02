@@ -2,31 +2,12 @@ from bson import ObjectId
 from pymongo import MongoClient
 from datetime import date
 from BasicClasses.Agenda import *
+from BasicClasses.ResponseClass import ResponseWrapper
 import mongo.user
 
 database = "lcThessaloniki"
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
-# def agendaJsonToAgendaObject(agenda_json, agenda_id):
-#     """
-#     Converts Agenda Json to an Object
-#     :param agenda_json:
-#     :param agenda_id:
-#     :return: Agenda Object
-#     """
-#     sections = []
-#     jsonSection = list(agenda_json.get("sections"))
-#     for sec in jsonSection:
-#         jsonTopics = list(sec.get("topics"))
-#         topics = []
-#
-#         for jsontopic in jsonTopics:
-#             topic = getTopicFromJson(jsontopic)
-#             topics.append(topic)
-#         section = Section(sec.get("section_name"), topics)
-#         sections.append(section)
-#     object = Agenda(agenda_json.get("date"), agenda_json.get("lc"), agenda_id, sections)
-#     return object
 
 def print_agenda(agenda):
     """
@@ -35,6 +16,7 @@ def print_agenda(agenda):
     :return: Agenda
     """
     print(agenda.date, agenda.id, agenda.lc, agenda.sections)
+
 
 class connectMongo:
 
@@ -59,7 +41,7 @@ class connectMongo:
         """
         return self.db.agendas.find()
 
-    def createNewAgenda(self, json_agenda):
+    def createNewAgenda(self, json_agenda) -> ResponseWrapper:
         """
         Adds a new agenda to database
         :param json_agenda
@@ -68,7 +50,7 @@ class connectMongo:
         objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
         id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
         object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return object
+        return ResponseWrapper(object)
 
     def getAgendaJsonById(self, agenda_id):
         """

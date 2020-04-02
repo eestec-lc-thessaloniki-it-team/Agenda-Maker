@@ -1,7 +1,7 @@
 import flask, os
 from flask import request, jsonify
 from Flask.DemoClasses import Person
-from mongo.exampleMongoConnection import *
+from mongo.connectMongo import *
 
 from BasicClasses.Agenda import *
 
@@ -23,9 +23,8 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    objectAgenda = connectToMongo.createNewAgenda(request.json)
-    print(objectAgenda)
-    return jsonify(response=200, agenda=objectAgenda.makeJson())
+    responseWrapper: ResponseWrapper = connectToMongo.createNewAgenda(request.json)
+    return jsonify(response=200, agenda=responseWrapper.object.makeJson())
 
 
 @app.route("/get-agenda-id", methods=['GET'])
