@@ -61,15 +61,16 @@ class connectMongo:
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         return jsonReturned
 
-    def getAgendaById(self, agenda_id):
+    def getAgendaById(self, agenda_id) -> ResponseWrapper:
         """
         Returns an agenda based on requested id
         :param agenda_id:
         :return: agenda with agenda_id
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
-        return object
+        # object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
+        object = getAgendaFromJson(jsonReturned)
+        return ResponseWrapper(object)
 
     def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
@@ -79,8 +80,13 @@ class connectMongo:
         :return: agenda object
         """
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
-        responseWrapper: ResponseWrapper = ResponseWrapper(Agenda("27-08-2012", "thessaloniki"))
-        return None
+        if returned.matched_count:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True, operationDone=True)
+            return responseWrapper
+        else:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None, found=False, operationDone=False)
+            return responseWrapper
 
     def createNewSection(self, agenda_id, section_name):
         """

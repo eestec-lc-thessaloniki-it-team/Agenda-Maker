@@ -55,9 +55,6 @@ def createSection():
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
 
-
-
-
 @app.route("/create-topic", methods=['POST'])
 def createTopic():
     """
@@ -72,6 +69,7 @@ def createTopic():
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
+
 @app.route("/update-agenda", methods=['POST'])
 def updateAgenda():
     """
@@ -80,10 +78,13 @@ def updateAgenda():
     """
     data = request.json
     if "id" in data and "new_agenda" in data:
-        object = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
-        return jsonify(response=200, agenda=object.makeJson())
+        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+        if not responseWrapper.found:
+            return jsonify(response=404, msg="Agenda not found")
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
 
 @app.route("/delete-agenda", methods=['POST'])
 def deleteAgenda():
