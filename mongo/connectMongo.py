@@ -2,31 +2,12 @@ from bson import ObjectId
 from pymongo import MongoClient
 from datetime import date
 from BasicClasses.Agenda import *
+from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
 database = "lcThessaloniki"
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
-# def agendaJsonToAgendaObject(agenda_json, agenda_id):
-#     """
-#     Converts Agenda Json to an Object
-#     :param agenda_json:
-#     :param agenda_id:
-#     :return: Agenda Object
-#     """
-#     sections = []
-#     jsonSection = list(agenda_json.get("sections"))
-#     for sec in jsonSection:
-#         jsonTopics = list(sec.get("topics"))
-#         topics = []
-#
-#         for jsontopic in jsonTopics:
-#             topic = getTopicFromJson(jsontopic)
-#             topics.append(topic)
-#         section = Section(sec.get("section_name"), topics)
-#         sections.append(section)
-#     object = Agenda(agenda_json.get("date"), agenda_json.get("lc"), agenda_id, sections)
-#     return object
 
 def print_agenda(agenda):
     """
@@ -35,6 +16,7 @@ def print_agenda(agenda):
     :return: Agenda
     """
     print(agenda.date, agenda.id, agenda.lc, agenda.sections)
+
 
 class connectMongo:
 
@@ -59,7 +41,7 @@ class connectMongo:
         """
         return self.db.agendas.find()
 
-    def createNewAgenda(self, json_agenda):
+    def createNewAgenda(self, json_agenda) -> ResponseWrapper:
         """
         Adds a new agenda to database
         :param json_agenda
@@ -68,7 +50,7 @@ class connectMongo:
         objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
         id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
         object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return object
+        return ResponseWrapper(object)
 
     def getAgendaJsonById(self, agenda_id):
         """
@@ -79,24 +61,32 @@ class connectMongo:
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         return jsonReturned
 
-    def getAgendaById(self, agenda_id):
+    def getAgendaById(self, agenda_id) -> ResponseWrapper:
         """
         Returns an agenda based on requested id
         :param agenda_id:
         :return: agenda with agenda_id
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
-        return object
+        # object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
+        object = getAgendaFromJson(jsonReturned)
+        return ResponseWrapper(object)
 
-    def updateAgenda(self, agenda_id, new_agenda):
+    def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
         Replaces an agenda with agenda_id, with new_agenda
         :param agenda_id:
         :param new_agenda:
         :return: agenda object
         """
-        return self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+        if returned.matched_count:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True, operationDone=True)
+            return responseWrapper
+        else:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None, found=False, operationDone=False)
+            return responseWrapper
 
     def createNewSection(self, agenda_id, section_name):
         """

@@ -1,7 +1,6 @@
 import flask, os
 from flask import request, jsonify
-from mongo.exampleMongoConnection import *
-
+from mongo.connectMongo import *
 from BasicClasses.Agenda import *
 
 app = flask.Flask(__name__)
@@ -22,9 +21,8 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    objectAgenda = connectToMongo.createNewAgenda(request.json)
-    print(objectAgenda)
-    return jsonify(response=200, agenda=objectAgenda.makeJson())
+    responseWrapper: ResponseWrapper = connectToMongo.createNewAgenda(request.json)
+    return jsonify(response=200, agenda=responseWrapper.object.makeJson())
 
 
 @app.route("/get-agenda-id", methods=['GET'])
@@ -53,6 +51,51 @@ def createSection():
         else:
             object = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
         return jsonify(response=200, agenda=object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+
+@app.route("/create-topic", methods=['POST'])
+def createTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position, topic_json
+    :return:
+    """
+    data = request.json
+    if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        object = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
+                                               data.get("topic_json"))
+        return jsonify(response=200, agenda=object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+
+@app.route("/update-agenda", methods=['POST'])
+def updateAgenda():
+    """
+    In request I expect agenda_id, new_agenda
+    :return:
+    """
+    data = request.json
+    if "id" in data and "new_agenda" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+        if not responseWrapper.found:
+            return jsonify(response=404, msg="Agenda not found")
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+
+@app.route("/delete-agenda", methods=['POST'])
+def deleteAgenda():
+    """
+    In request I expect agenda_id
+    :return:
+    """
+    data = request.json
+    if "id" in data:
+        connectToMongo.deleteAgenda(data.get("id"))
+        return jsonify(response=200, msg="Agenda has been deleted")
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 

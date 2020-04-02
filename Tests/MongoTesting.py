@@ -1,4 +1,4 @@
-from mongo.exampleMongoConnection import *
+from mongo.connectMongo import *
 
 data = {
     "date": date.today().strftime("%d/%m/%Y"),
