@@ -2,7 +2,7 @@ from bson import ObjectId
 from pymongo import MongoClient
 from datetime import date
 from BasicClasses.Agenda import *
-from BasicClasses.ResponseClass import ResponseWrapper
+from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
 database = "lcThessaloniki"
@@ -71,14 +71,16 @@ class connectMongo:
         object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
         return object
 
-    def updateAgenda(self, agenda_id, new_agenda):
+    def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
         Replaces an agenda with agenda_id, with new_agenda
         :param agenda_id:
         :param new_agenda:
         :return: agenda object
         """
-        return self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+        responseWrapper: ResponseWrapper = ResponseWrapper(Agenda("27-08-2012", "thessaloniki"))
+        return None
 
     def createNewSection(self, agenda_id, section_name):
         """
