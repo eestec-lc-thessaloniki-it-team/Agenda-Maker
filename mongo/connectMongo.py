@@ -5,18 +5,20 @@ from BasicClasses.Agenda import *
 from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
+
+
 database = "lcThessaloniki"
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
-
 
 def print_agenda(agenda):
     """
     Prints requested agenda
     :param agenda:
-    :return: Agenda
     """
     print(agenda.date, agenda.id, agenda.lc, agenda.sections)
 
+def print_Wrapper(responseWrapper):
+    print(responseWrapper.object,responseWrapper.found,responseWrapper.operationDone)
 
 class connectMongo:
 
@@ -37,26 +39,27 @@ class connectMongo:
     def getAllAgendas(self):
         """
         Returns all agendas from this database
-        :return: a cursor to all agendas
+        :return: List of all Agenda Objects
         """
-        return self.db.agendas.find()
+
+        return [getAgendaFromJson(agendaJson) for agendaJson in self.db.agendas.find()]
 
     def createNewAgenda(self, json_agenda) -> ResponseWrapper:
         """
         Adds a new agenda to database
         :param json_agenda
-        :return: added agenda object
+        :return: ResponseWrapper
         """
         objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
         id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
         object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return ResponseWrapper(object)
+        return ResponseWrapper(object,found=True,operationDone=True)
 
     def getAgendaJsonById(self, agenda_id):
         """
         Returns an agenda json based on requested id
         :param agenda_id:
-        :return: agenda json with agenda_id
+        :return: Agenda json with agenda_id
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         return jsonReturned
@@ -68,25 +71,21 @@ class connectMongo:
         :return: agenda with agenda_id
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        # object = Agenda(jsonReturned.get("date"), jsonReturned.get("lc"), str(agenda_id), jsonReturned.get("sections"))
+        if jsonReturned is None:
+            return ResponseWrapper(None)
         object = getAgendaFromJson(jsonReturned)
-        return ResponseWrapper(object)
+        return ResponseWrapper(object,found=True,operationDone=True)
+
 
     def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
         Replaces an agenda with agenda_id, with new_agenda
         :param agenda_id:
         :param new_agenda:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
-        if returned.matched_count:
-            objectAgenda = self.getAgendaById(agenda_id).object
-            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True, operationDone=True)
-            return responseWrapper
-        else:
-            responseWrapper: ResponseWrapper = ResponseWrapper(None, found=False, operationDone=False)
-            return responseWrapper
+        return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True, operationDone=bool(returned.matched_count))
 
     def createNewSection(self, agenda_id, section_name):
         """
@@ -96,10 +95,14 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = getAgendaFromJson(jsonReturned)
-        object.addSection(section_name)
-        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
-        return object
+        if jsonReturned is None:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None, found=False, operationDone=False)
+        else:
+            objectAgenda = getAgendaFromJson(jsonReturned)
+            objectAgenda.addSection(section_name)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(self.getAgendaById(agenda_id).object, found=True, operationDone=bool(returned.matched_count))
+        return responseWrapper
 
     def createNewSectionInPosition(self, agenda_id, section_name, position):
         """
@@ -110,10 +113,14 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = getAgendaFromJson(jsonReturned)
-        object.addSectionInPosition(section_name, position)
-        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
-        return object
+        if jsonReturned is None:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None,found=False,operationDone=False)
+        else:
+            objectAgenda = getAgendaFromJson(jsonReturned)
+            objectAgenda.addSectionInPosition(section_name, position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(self.getAgendaById(agenda_id).object,found=True,operationDone=bool(returned.matched_count))
+        return responseWrapper
 
     def createNewTopic(self, agenda_id, section_position, topic_position, topic_json):
         """
@@ -125,11 +132,15 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = getAgendaFromJson(jsonReturned)
-        topic = getTopicFromJson(topic_json)
-        object.addTopicInPosition(section_position, topic, topic_position)
-        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
-        return object
+        if jsonReturned is None:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None,found=False,operationDone=False)
+        else:
+            objectAgenda = getAgendaFromJson(jsonReturned)
+            topic = getTopicFromJson(topic_json)
+            objectAgenda.addTopicInPosition(section_position, topic, topic_position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(self.getAgendaById(agenda_id).object,found=True,operationDone=bool(returned.matched_count))
+        return responseWrapper
 
     def deleteAgenda(self, agenda_id):
         """
@@ -137,7 +148,9 @@ class connectMongo:
         :param agenda_id:
         :return: agenda object
         """
-        return self.db.agendas.delete_many({'id': agenda_id})
+        agendaWrapper = self.getAgendaById(agenda_id)
+        returned = self.db.agendas.delete_many({'id': agenda_id})
+        return ResponseWrapper(agendaWrapper.object,found=agendaWrapper.found,operationDone=bool(returned.deleted_count))
 
     def deleteSection(self, agenda_id, position):
         """
@@ -147,10 +160,14 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = getAgendaFromJson(jsonReturned)
-        object.deleteSection(position)
-        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
-        return object
+        if jsonReturned is None:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None,found=False, operationDone=False)
+        else:
+            objectAgenda = getAgendaFromJson(jsonReturned)
+            objectAgenda.deleteSection(position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(self.getAgendaById(agenda_id).object,found=True,operationDone=bool(returned.matched_count))
+        return responseWrapper
 
     def deleteTopic(self, agenda_id, section_position, topic_position):
         """
@@ -161,10 +178,14 @@ class connectMongo:
         :return: agenda object
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        object = getAgendaFromJson(jsonReturned)
-        object.deleteTopic(section_position, topic_position)
-        self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': object.makeJson()})
-        return object
+        if jsonReturned is None:
+            responseWrapper: ResponseWrapper = ResponseWrapper(None,found=False,operationDone=False)
+        else:
+            objectAgenda = getAgendaFromJson(jsonReturned)
+            objectAgenda.deleteTopic(section_position, topic_position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(self.getAgendaById(agenda_id).object,found=True,operationDone=bool(returned.matched_count))
+        return responseWrapper
 
     def deleteAll(self):
         """
@@ -172,3 +193,104 @@ class connectMongo:
         :return: empty list
         """
         return self.db.agendas.drop()
+
+
+data = {
+    "date": date.today().strftime("%d/%m/%Y"),
+    "lc": "thessaloniki",
+    "sections": [
+        {
+            "section_name": "gmElections",
+            "topics": [
+                {
+                    "topic_name": "openGmstaffEl",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
+                },
+                {
+                    "topic_name": "MinutesElection",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                    "open_ballot": "True"
+                }
+            ]
+        },
+        {
+            "section_name": "WorkShop",
+            "topics": [
+                {
+                    "topic_name": "openVote",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
+                },
+                {
+                    "topic_name": "Future of Workshop",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Cancelation", "Postpone", "procced"],
+                    "open_ballot": "True"
+                }
+            ]
+        },
+        {
+            "section_name": "Krasia",
+            "topics": [
+                {
+                    "topic_name": "openVote",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "False"
+                },
+                {
+                    "topic_name": "Wanna go ?",
+                    "votable": "True",
+                    "yes_no_vote": "True",
+                    "open_ballot": "True"
+                },
+                {
+                    "topic_name": "Where",
+                    "votable": "True",
+                    "yes_no_vote": "False",
+                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
+                    "open_ballot": "True"
+                },
+                {
+                    "topic_name": "Lets go",
+                    "votable": "False"
+                }
+            ]
+        }
+    ]
+}
+
+
+
+mongo = connectMongo()
+a= mongo.createNewAgenda(data)
+print(a.object)
+print_agenda(a.object)
+print_Wrapper(a)
+
+mongo.updateAgenda(a.object.id,data)
+
+b = mongo.createNewSectionInPosition(a.object.id,'mpur',0)
+print_agenda(b.object)
+print_Wrapper(b)
+
+d = mongo.createNewTopic(a.object.id,0,0,{"topic_name": "Lets","votable": "False"})
+print(mongo.getAgendaJsonById(d.object.id))
+print_agenda(d.object)
+print_Wrapper(d)
+
+g = mongo.deleteTopic(a.object.id,0,0)
+print(mongo.getAgendaJsonById(g.object.id))
+print_Wrapper(g)
+
+f = mongo.deleteSection(a.object.id,0)
+print(mongo.getAgendaJsonById(f.object.id))
+print_Wrapper(f)
+
+print(mongo.getAllAgendas())
