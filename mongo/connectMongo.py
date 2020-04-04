@@ -5,8 +5,6 @@ from BasicClasses.Agenda import *
 from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
-
-
 database = "lcThessaloniki"
 url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
@@ -68,7 +66,7 @@ class connectMongo:
         """
         Returns an agenda based on requested id
         :param agenda_id:
-        :return: agenda with agenda_id
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -92,7 +90,7 @@ class connectMongo:
         Adds new session to existing agenda
         :param agenda_id:
         :param section_name:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -110,7 +108,7 @@ class connectMongo:
         :param agenda_id:
         :param section_name:
         :param position:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -129,7 +127,7 @@ class connectMongo:
         :param section_position:
         :param topic_position:
         :param topic_json:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -146,7 +144,7 @@ class connectMongo:
         """
         Deletes an agenda with agenda_id from the database
         :param agenda_id:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         agendaWrapper = self.getAgendaById(agenda_id)
         returned = self.db.agendas.delete_many({'id': agenda_id})
@@ -157,7 +155,7 @@ class connectMongo:
         Deletes a section from agenda
         :param agenda_id:
         :param position:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -175,7 +173,7 @@ class connectMongo:
         :param agenda_id:
         :param section_position:
         :param topic_position:
-        :return: agenda object
+        :return: ResponseWrapper
         """
         jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
         if jsonReturned is None:
@@ -194,103 +192,3 @@ class connectMongo:
         """
         return self.db.agendas.drop()
 
-
-data = {
-    "date": date.today().strftime("%d/%m/%Y"),
-    "lc": "thessaloniki",
-    "sections": [
-        {
-            "section_name": "gmElections",
-            "topics": [
-                {
-                    "topic_name": "openGmstaffEl",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "MinutesElection",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Marios", "Tasos", "urMOM"],
-                    "open_ballot": "True"
-                }
-            ]
-        },
-        {
-            "section_name": "WorkShop",
-            "topics": [
-                {
-                    "topic_name": "openVote",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "Future of Workshop",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Cancelation", "Postpone", "procced"],
-                    "open_ballot": "True"
-                }
-            ]
-        },
-        {
-            "section_name": "Krasia",
-            "topics": [
-                {
-                    "topic_name": "openVote",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "Wanna go ?",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "True"
-                },
-                {
-                    "topic_name": "Where",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
-                    "open_ballot": "True"
-                },
-                {
-                    "topic_name": "Lets go",
-                    "votable": "False"
-                }
-            ]
-        }
-    ]
-}
-
-
-
-mongo = connectMongo()
-a= mongo.createNewAgenda(data)
-print(a.object)
-print_agenda(a.object)
-print_Wrapper(a)
-
-mongo.updateAgenda(a.object.id,data)
-
-b = mongo.createNewSectionInPosition(a.object.id,'mpur',0)
-print_agenda(b.object)
-print_Wrapper(b)
-
-d = mongo.createNewTopic(a.object.id,0,0,{"topic_name": "Lets","votable": "False"})
-print(mongo.getAgendaJsonById(d.object.id))
-print_agenda(d.object)
-print_Wrapper(d)
-
-g = mongo.deleteTopic(a.object.id,0,0)
-print(mongo.getAgendaJsonById(g.object.id))
-print_Wrapper(g)
-
-f = mongo.deleteSection(a.object.id,0)
-print(mongo.getAgendaJsonById(f.object.id))
-print_Wrapper(f)
-
-print(mongo.getAllAgendas())

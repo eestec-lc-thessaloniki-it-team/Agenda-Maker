@@ -86,45 +86,38 @@ data2 = {
     ]
 }
 
-"""
-Auta ta xoume kai stin exampleMongoConnection, den xreiazontai edw, alla oti theleis!!
-def print_agenda(agenda):
-    print(agenda.date, agenda.id, agenda.lc, agenda.sections)
+mongo = connectMongo()
 
-mongo = connectMongo()
-"""
-mongo = connectMongo()
 a = mongo.createNewAgenda(data)
-print_agenda(a)  # Prints the new agenda that was created
+print_agenda(a.object)
+print_Wrapper(a)
 
-aa = mongo.createNewAgenda(data2)
-s = mongo.getAllAgendas()
-print(list(s))  # Prints a list of json agendas
+a = mongo.updateAgenda(a.object.id, data)
+print_agenda(a.object)
+print_Wrapper(a)
 
-mongo.updateAgenda(a.id, data)
-b = mongo.getAgendaById(a.id)
-print_agenda(b)  # Prints updated agenda
+b = mongo.getAgendaById(a.object.id)
+print_agenda(b.object)
+print_Wrapper(b)
 
-s = mongo.getAllAgendas()
-print(list(s))  # Prints a list of json agendas
+c = mongo.createNewSectionInPosition(a.object.id, 'New Section!', 0)
+print_agenda(c.object)
+print_Wrapper(c)
 
-mongo.createNewSectionInPosition(a.id, 'Krasiaaaaaa', 0)
-c = mongo.getAgendaById(a.id)
-print_agenda(c)  # Prints agenda with new section
+d = mongo.deleteSection(a.object.id, 0)
+print_agenda(d.object)
+print_Wrapper(d)
 
-mongo.deleteSection(a.id, 0)
-d = mongo.getAgendaById(a.id)
-print_agenda(d)  # Prints agenda with deleted section
+e = mongo.createNewTopic(a.object.id, 0, 0, {'topic_name': 'New Topic!', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
+print_agenda(e.object)
+print_Wrapper(e)
 
-mongo.createNewTopic(a.id, 0, 0,
-                     {'topic_name': 'Test', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
-e = mongo.getAgendaById(a.id)
-print_agenda(e)  # Prints agenda with new topic
+f = mongo.deleteTopic(a.object.id, 0, 0)
+print(mongo.getAgendaJsonById(f.object.id))
+print_Wrapper(f)
 
-mongo.deleteTopic(a.id, 0, 0)
-f = mongo.getAgendaById(a.id)
-print_agenda(f)  # Prints agenda with deleted topic
+g = mongo.deleteSection(a.object.id,0)
+print(mongo.getAgendaJsonById(g.object.id))
+print_Wrapper(g)
 
-mongo.deleteAll()  # Deletes all agendas
-s = mongo.getAllAgendas()
-print(list(s))
+print(mongo.getAllAgendas())
