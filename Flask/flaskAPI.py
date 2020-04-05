@@ -99,6 +99,9 @@ def deleteAgenda():
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
+@app.route("/update-section", methods=['POST'])
+def updateSection():
+    
 
 if __name__ == '__main__':
     app.run()
