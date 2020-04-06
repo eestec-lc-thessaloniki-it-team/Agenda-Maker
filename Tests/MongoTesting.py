@@ -209,6 +209,38 @@ a = mongo.updateAgenda(a.object.id, data)
 print_agenda(a.object)
 print_Wrapper(a)
 
+b = mongo.updateSection(a.object.id,0,{
+                            "section_name": "gmElections",
+                            "topics": [
+                                {
+                                    "topic_name": "openGmstaffEl",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        })
+print_agenda(b.object)
+print_Wrapper(b)
+
+
+c = mongo.updateTopic(a.object.id,0,0,{
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                })
+print_agenda(c.object)
+print_Wrapper(c)
+
 b = mongo.getAgendaById(a.object.id)
 print_agenda(b.object)
 print_Wrapper(b)
