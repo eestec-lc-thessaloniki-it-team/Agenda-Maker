@@ -1,7 +1,7 @@
 import unittest
 from mongo.connectMongo import *
 
-
+"""
 class MongoTesting(unittest.TestCase):
     def setUp(self) -> None:
         self.json = {"date": date.today().strftime("%d/%m/%Y"), "lc": "thessaloniki","sections": [
@@ -101,8 +101,8 @@ class MongoTesting(unittest.TestCase):
 
     def test_deleteTopic(self):
         self.assertEqual()
-
-
+        
+"""
 
 # data2 = {
 #     'date': date.today().strftime("%d/%m/%Y"),
@@ -118,6 +118,86 @@ class MongoTesting(unittest.TestCase):
 #         }
 #     ]
 # }
+
+data = {"date": date.today().strftime("%d/%m/%Y"), "lc": "thessaloniki","sections": [
+                        {
+                            "section_name": "gmElections",
+                            "topics": [
+                                {
+                                    "topic_name": "openGmstaffEl",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "WorkShop",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Future of Workshop",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Cancelation", "Postpone", "procced"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "Krasia",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Wanna go ?",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Where",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Lets go",
+                                    "votable": "False"
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+
+def print_agenda(agenda):
+    """
+    Prints requested agenda
+    :param agenda:
+    """
+    print(agenda.date, agenda.id, agenda.lc, agenda.sections)
+
+def print_Wrapper(responseWrapper):
+    print(responseWrapper.object,responseWrapper.found,responseWrapper.operationDone)
+
 
 mongo = connectMongo()
 
@@ -146,11 +226,11 @@ print_agenda(e.object)
 print_Wrapper(e)
 
 f = mongo.deleteTopic(a.object.id, 0, 0)
-print(mongo.getAgendaJsonById(f.object.id))
+print(mongo.getAgendaById(f.object.id))
 print_Wrapper(f)
 
 g = mongo.deleteSection(a.object.id,0)
-print(mongo.getAgendaJsonById(g.object.id))
+print(mongo.getAgendaById(g.object.id))
 print_Wrapper(g)
 
 print(mongo.getAllAgendas())
