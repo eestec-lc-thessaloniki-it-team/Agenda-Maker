@@ -1,130 +1,268 @@
+import unittest
 from mongo.connectMongo import *
 
-data = {
-    "date": date.today().strftime("%d/%m/%Y"),
-    "lc": "thessaloniki",
-    "sections": [
-        {
-            "section_name": "gmElections",
-            "topics": [
-                {
-                    "topic_name": "openGmstaffEl",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "MinutesElection",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Marios", "Tasos", "urMOM"],
-                    "open_ballot": "True"
-                }
-            ]
-        },
-        {
-            "section_name": "WorkShop",
-            "topics": [
-                {
-                    "topic_name": "openVote",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "Future of Workshop",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Cancelation", "Postpone", "procced"],
-                    "open_ballot": "True"
-                }
-            ]
-        },
-        {
-            "section_name": "Krasia",
-            "topics": [
-                {
-                    "topic_name": "openVote",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "False"
-                },
-                {
-                    "topic_name": "Wanna go ?",
-                    "votable": "True",
-                    "yes_no_vote": "True",
-                    "open_ballot": "True"
-                },
-                {
-                    "topic_name": "Where",
-                    "votable": "True",
-                    "yes_no_vote": "False",
-                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
-                    "open_ballot": "True"
-                },
-                {
-                    "topic_name": "Lets go",
-                    "votable": "False"
-                }
-            ]
-        }
-    ]
-}
-
-data2 = {
-    'date': date.today().strftime("%d/%m/%Y"),
-    'lc': 'thessaloniki',
-    'sections': [  # this will be a list of objects  but for now lets assume that there are title, subtitle
-        {
-            'section_name': 'Section 1',
-            'topics': []
-        },
-        {
-            'section_name': 'Section 2',
-            'topics': []
-        }
-    ]
-}
-
 """
-Auta ta xoume kai stin exampleMongoConnection, den xreiazontai edw, alla oti theleis!!
+class MongoTesting(unittest.TestCase):
+    def setUp(self) -> None:
+        self.json = {"date": date.today().strftime("%d/%m/%Y"), "lc": "thessaloniki","sections": [
+                        {
+                            "section_name": "gmElections",
+                            "topics": [
+                                {
+                                    "topic_name": "openGmstaffEl",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "WorkShop",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Future of Workshop",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Cancelation", "Postpone", "procced"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "Krasia",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Wanna go ?",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Where",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Lets go",
+                                    "votable": "False"
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+    def test_getAgendaJsonById(self):
+        self.assertDictEqual(mongo.getAgendaJsonById(self),self.mongo.makeJson())
+
+    def test_getAgendaById(self):
+        self.assertEqual(mongo.getAgendaById(self),self.agenda)
+
+    def test_createAgenda(self):
+        self.assertEqual()
+
+    def test_updateAgenda(self):
+        self.assertEqual()
+
+    def test_createNewSection(self):
+        self.assertEqual()
+
+    def test_createNewSectionInPosition(self):
+        self.assertEqual()
+
+    def test_createNewTopic(self):
+        self.assertEqual()
+
+    def test_deleteAgenda(self):
+        self.assertEqual()
+
+    def test_deleteSection(self):
+        self.assertEqual()
+
+    def test_deleteTopic(self):
+        self.assertEqual()
+        
+"""
+
+# data2 = {
+#     'date': date.today().strftime("%d/%m/%Y"),
+#     'lc': 'thessaloniki',
+#     'sections': [  # this will be a list of objects  but for now lets assume that there are title, subtitle
+#         {
+#             'section_name': 'Section 1',
+#             'topics': []
+#         },
+#         {
+#             'section_name': 'Section 2',
+#             'topics': []
+#         }
+#     ]
+# }
+
+data = {"date": date.today().strftime("%d/%m/%Y"), "lc": "thessaloniki","sections": [
+                        {
+                            "section_name": "gmElections",
+                            "topics": [
+                                {
+                                    "topic_name": "openGmstaffEl",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "WorkShop",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Future of Workshop",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Cancelation", "Postpone", "procced"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        },
+                        {
+                            "section_name": "Krasia",
+                            "topics": [
+                                {
+                                    "topic_name": "openVote",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "Wanna go ?",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Where",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Ombrella, Podhlato, SomeWeirdAssPlace"],
+                                    "open_ballot": "True"
+                                },
+                                {
+                                    "topic_name": "Lets go",
+                                    "votable": "False"
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+
 def print_agenda(agenda):
+    """
+    Prints requested agenda
+    :param agenda:
+    """
     print(agenda.date, agenda.id, agenda.lc, agenda.sections)
 
+def print_Wrapper(responseWrapper):
+    print(responseWrapper.object,responseWrapper.found,responseWrapper.operationDone)
+
+
 mongo = connectMongo()
-"""
-mongo = connectMongo()
+
 a = mongo.createNewAgenda(data)
-print_agenda(a)  # Prints the new agenda that was created
+print_agenda(a.object)
+print_Wrapper(a)
 
-aa = mongo.createNewAgenda(data2)
-s = mongo.getAllAgendas()
-print(list(s))  # Prints a list of json agendas
+a = mongo.updateAgenda(a.object.id, data)
+print_agenda(a.object)
+print_Wrapper(a)
 
-mongo.updateAgenda(a.id, data)
-b = mongo.getAgendaById(a.id)
-print_agenda(b)  # Prints updated agenda
+b = mongo.updateSection(a.object.id,0,{
+                            "section_name": "gmElections",
+                            "topics": [
+                                {
+                                    "topic_name": "openGmstaffEl",
+                                    "votable": "True",
+                                    "yes_no_vote": "True",
+                                    "open_ballot": "False"
+                                },
+                                {
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                }
+                            ]
+                        })
+print_agenda(b.object)
+print_Wrapper(b)
 
-s = mongo.getAllAgendas()
-print(list(s))  # Prints a list of json agendas
 
-mongo.createNewSectionInPosition(a.id, 'Krasiaaaaaa', 0)
-c = mongo.getAgendaById(a.id)
-print_agenda(c)  # Prints agenda with new section
+c = mongo.updateTopic(a.object.id,0,0,{
+                                    "topic_name": "MinutesElection",
+                                    "votable": "True",
+                                    "yes_no_vote": "False",
+                                    "possible_answers": ["Marios", "Tasos", "urMOM"],
+                                    "open_ballot": "True"
+                                })
+print_agenda(c.object)
+print_Wrapper(c)
 
-mongo.deleteSection(a.id, 0)
-d = mongo.getAgendaById(a.id)
-print_agenda(d)  # Prints agenda with deleted section
+b = mongo.getAgendaById(a.object.id)
+print_agenda(b.object)
+print_Wrapper(b)
 
-mongo.createNewTopic(a.id, 0, 0,
-                     {'topic_name': 'Test', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
-e = mongo.getAgendaById(a.id)
-print_agenda(e)  # Prints agenda with new topic
+c = mongo.createNewSectionInPosition(a.object.id, 'New Section!', 0)
+print_agenda(c.object)
+print_Wrapper(c)
 
-mongo.deleteTopic(a.id, 0, 0)
-f = mongo.getAgendaById(a.id)
-print_agenda(f)  # Prints agenda with deleted topic
+d = mongo.deleteSection(a.object.id, 0)
+print_agenda(d.object)
+print_Wrapper(d)
 
-mongo.deleteAll()  # Deletes all agendas
-s = mongo.getAllAgendas()
-print(list(s))
+e = mongo.createNewTopic(a.object.id, 0, 0, {'topic_name': 'New Topic!', 'votable': 'True', 'yes_no_vote': 'True', 'open_ballot': 'False'})
+print_agenda(e.object)
+print_Wrapper(e)
+
+f = mongo.deleteTopic(a.object.id, 0, 0)
+print(mongo.getAgendaById(f.object.id))
+print_Wrapper(f)
+
+g = mongo.deleteSection(a.object.id,0)
+print(mongo.getAgendaById(g.object.id))
+print_Wrapper(g)
+
+print(mongo.getAllAgendas())
