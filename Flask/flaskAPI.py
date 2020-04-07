@@ -128,7 +128,8 @@ def deleteTopic():
     # todo (almost done?)
     data = request.json
     if "agenda_id" in data and "section_position" in data and "topic_position" in data:
-        responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("id"), data.get("section_position"),
+        responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("agenda_id"),
+                                                                      data.get("section_position"),
                                                                       data.get("topic_position"))
         if responseWrapper.found:
             return jsonify(response=200, msg="Topic has been deleted")
