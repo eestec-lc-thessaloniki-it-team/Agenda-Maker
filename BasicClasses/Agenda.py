@@ -170,6 +170,6 @@ def getAgendaFromJson(json) -> Optional[Agenda]:
         new_sections = []
         for section_json in json.get("sections"):
             new_sections.append(getSectionFromJson(section_json))
-        return Agenda(json.get("date"), json.get("lc"), str(json.get("_id")), new_sections)
+        return Agenda(json.get("date"), json.get("lc"), str(json.get("id")), new_sections)
     else:
         return None
