@@ -133,6 +133,8 @@ def deleteTopic():
                                                                       data.get("topic_position"))
         if responseWrapper.found:
             return jsonify(response=200, msg="Topic has been deleted")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
