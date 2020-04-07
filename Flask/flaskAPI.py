@@ -45,11 +45,11 @@ def createSection():
     data = request.json
     if "id" in data and "section_name" in data:
         if "position" in data:
-            object = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
+            responseWrapper = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
                                                                data.get("position"))
         else:
-            object = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
-        return jsonify(response=200, agenda=object.makeJson())
+            responseWrapper = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
@@ -62,9 +62,9 @@ def createTopic():
     """
     data = request.json
     if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        object = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
+        responseWrapper = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
                                                data.get("topic_json"))
-        return jsonify(response=200, agenda=object.makeJson())
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
