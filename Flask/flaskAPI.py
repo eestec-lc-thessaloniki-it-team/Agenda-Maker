@@ -103,17 +103,18 @@ def deleteAgenda():
 @app.route("/update-section", methods=['POST'])
 def updateSection():
     """
-    In request I expect agenda_id, section_name, section_position
+    In request I expect agenda_id, section_position, section_json
     :return:
     """
     # todo (almost done?)
     data = request.json
-    if "id" in data and "new_section" in data and "section_position" in data:
-        responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("id"), data.get("section_position"))
+    if "agenda_id" in data and "section_position" in data and "section_json" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("agenda_id"), data.get("section_position"),
+                                                                        data.get("section_json"))
         if not responseWrapper.found:
             return jsonify(response=404, msg="Agenda not found")
         else:
-            return jsonify(response=200, agenda=createResponseWrapper.object.makeJson())
+            return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="Υou didn't send all the necessary information")
 
@@ -126,7 +127,7 @@ def deleteTopic():
     """
     # todo (almost done?)
     data = request.json
-    if "id" in data and "section_position" in data and "topic_position" in data:
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data:
         responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("id"), data.get("section_position"),
                                                                       data.get("topic_position"))
         if not responseWrapper.found:
