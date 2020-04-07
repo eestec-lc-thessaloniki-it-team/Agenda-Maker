@@ -99,9 +99,43 @@ def deleteAgenda():
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
+
 @app.route("/update-section", methods=['POST'])
 def updateSection():
-    
+    """
+    In request I expect agenda_id, section_name, section_position
+    :return:
+    """
+    # todo (almost done?)
+    data = request.json
+    if "id" in data and "new_section" in data and "section_position" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("id"), data.get("section_position"))
+        if not responseWrapper.found:
+            return jsonify(response=404, msg="Agenda not found")
+        else:
+            return jsonify(response=200, agenda=createResponseWrapper.object.makeJson())
+    else:
+        return jsonify(respose=400, msg="Υou didn't send all the necessary information")
+
+
+@app.route("/delete-topic", methods=['POST'])
+def deleteTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position
+    :return:
+    """
+    # todo (almost done?)
+    data = request.json
+    if "id" in data and "section_position" in data and "topic_position" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("id"), data.get("section_position"),
+                                                                      data.get("topic_position"))
+        if not responseWrapper.found:
+            return jsonify(response=404, msg="Agenda not found")
+        else:
+            return jsonify(response=200, msg="Topic has been deleted")
+    else:
+        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
 
 if __name__ == '__main__':
     app.run()
