@@ -16,20 +16,28 @@ class FlaskTesting(unittest.TestCase):
         self.basic_url = "http://127.0.0.1:5000/"
         agenda_params = {"date": "27-04-2020", "lc": "Thessaloniki"}
         agenda_response = requests.post(self.basic_url + "create-agenda", json=agenda_params)
-        print(agenda_response.json())
-        create_params = {"id": str(agenda_response.json().get("agenda").get("id")),
-                         "section_name": "quarantine_ends"}
-        create_response = requests.post(self.basic_url + "create-section", json=create_params)
-        print(create_response.json().get("response"))
-        params = {"agenda_id": create_response.json().get("agenda").get("id"), "section_position": 0,
-                  "section_json": {"section_name": "quarantine_over", "topics": []}}
+        agenda_id = agenda_response.json().get("agenda").get("id")
+        create_params = {"id": agenda_id, "section_name": "quarantine_ends"}
+        requests.post(self.basic_url + "create-section", json=create_params)
+        new_section = {"section_name": "quarantine_over", "topics": []}
+        params = {"agenda_id": agenda_id, "section_position": 0, "section_json": new_section}
         response = requests.post(self.basic_url + "update-section", json=params)
         data = response.json()
         print(data)
 
     def test_deleteTopic(self):
         self.basic_url = "http://127.0.0.1:5000/"
-        params = {"agenda_id": 1, "section_position": 0, "topic_position": 0}
+        agenda_params = {"date": "27-04-2020", "lc": "Thessaloniki"}
+        agenda_response = requests.post(self.basic_url + "create-agenda", json=agenda_params)
+        agenda_id = agenda_response.json().get("agenda").get("id")
+        section_params = {"id": agenda_id, "section_name": "quarantine_ends"}
+        section_request = requests.post(self.basic_url + "create-section", json=section_params)
+        print(section_request.json())
+        new_topic = {'topic_name': 'openGmStaffEl', 'votable': True, 'yes_no_vote': True, 'open_ballot': False}
+        topic_params = {"id": agenda_id, "section_position": 0, "topic_position": 0, "topic_json": new_topic}
+        topic_response = requests.post(self.basic_url + "create-topic", json=topic_params)
+        print(topic_response.json())
+        params = {"agenda_id": agenda_id, "section_position": 0, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
         data = response.json()
         print(data)
