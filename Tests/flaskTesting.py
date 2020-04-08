@@ -31,21 +31,26 @@ class FlaskTesting(unittest.TestCase):
 
     def test_deleteTopic(self):
         self.basic_url = "http://127.0.0.1:5000/"
-        
+
         agenda_params = {"date": "27-04-2020", "lc": "Thessaloniki"}
         agenda_response = requests.post(self.basic_url + "create-agenda", json=agenda_params)
 
+        # TODO: Test if the response code is the expected and the agenda object is present
         agenda_id = agenda_response.json().get("agenda").get("id")
 
         section_params = {"id": agenda_id, "section_name": "quarantine_ends"}
         requests.post(self.basic_url + "create-section", json=section_params)
+        # TODO: Check if the response code is expected
 
         new_topic = {'topic_name': 'openGmStaffEl', 'votable': True, 'yes_no_vote': True, 'open_ballot': False}
         topic_params = {"id": agenda_id, "section_position": 0, "topic_position": 0, "topic_json": new_topic}
         requests.post(self.basic_url + "create-topic", json=topic_params)
 
+        # TODO: Check for a incorrect id, or don't give all the required info. Are the response codes the expected ones?
+
         params = {"agenda_id": agenda_id, "section_position": 0, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
+        # TODO: check if the response code is expected and if the topic is deleted properly based on the returned agenda
         data = response.json()
         print(data)
 
