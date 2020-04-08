@@ -5,16 +5,15 @@ from BasicClasses.Agenda import *
 from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
-database = "lcThessaloniki"
-url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
 class connectMongo:
 
-    def __init__(self):
+    def __init__(self,database="lcThessaloniki"):
         """
         Connection to database with credentials and get an object of mongoclient
         """
-        self.client = MongoClient(url, authSource="admin")['lcThessaloniki']
+        url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
+        self.client = MongoClient(url, authSource="admin")[database]
         self.db = self.client.lcThessaloniki
 
     def getAllDatabasesFromLC(self):
@@ -101,7 +100,8 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.addSection(section_name)
+        addedSection = objectAgenda.addSection(section_name)
+        if not addedSection: return ResponseWrapper(objectAgenda,found=False,operationDone=False)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
         responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True, operationDone=bool(returned.matched_count))
         return responseWrapper
@@ -178,4 +178,7 @@ class connectMongo:
         :return: empty list
         """
         return self.db.agendas.drop()
-
+'''
+mongo = connectMongo()
+print(mongo.getAllDatabasesFromLC())
+'''
