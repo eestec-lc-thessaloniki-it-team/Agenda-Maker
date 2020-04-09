@@ -135,7 +135,7 @@ def deleteTopic():
             responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("agenda_id"),
                                                                           data.get("section_position"),
                                                                           data.get("topic_position"))
-            if responseWrapper.operationDone:
+            if responseWrapper.operationDone: # TODO: error in mongo always returns true till now
                 return jsonify(response=200, agenda=responseWrapper.object.makeJson())
             else:
                 return jsonify(response=501, msg="Delete Failed")
