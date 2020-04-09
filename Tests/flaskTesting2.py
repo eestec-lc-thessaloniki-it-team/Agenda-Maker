@@ -110,6 +110,60 @@ class FlaskTesting(unittest.TestCase):
         new_agenda = getAgendaFromJson(data.get("agenda"))
         self.assertNotEqual(old_agenda.sections[0].topics[0], new_agenda.sections[0].topics[0])
 
+    def test_updateTopic(self):
+        new_topic = {'topic_name': 'Where', 'votable': True, 'yes_no_vote': False,
+                     'possible_answers': ['Omprella, Podhlato, SomeWeirdAssPlace, homeCuzQuarantine', ],
+                     'open_ballot': True}
+
+        params = {"agenda_id": self.agenda_id, "section_position": 0, "topic_position": 0}
+        response = requests.post(self.basic_url + "update-topic", json=params)
+        self.assertEqual(response.json().get("response"), 400)
+
+        params = {"agenda_id": "5e8d8b26ad0789ce0a9d84b9", "section_position": 2, "topic_position": 2,
+                  "topic_json": new_topic}
+        response = requests.post(self.basic_url + "update-topic", json=params)
+        self.assertEqual(response.json().get("response"), 404)
+
+        params = {"agenda_id": self.agenda_id, "section_position": 2, "topic_position": 2, "topic_json": new_topic}
+        response = requests.post(self.basic_url + "update-topic", json=params)
+        self.assertEqual(response.json().get("response"), 501)
+
+        params = {"agenda_id": self.agenda_id, "section_position": 2, "topic_position": 2, "topic_json": new_topic}
+        response = requests.post(self.basic_url + "update-topic", json=params)
+        self.assertEqual(response.json().get("response"), 200)
+        agenda = getAgendaFromJson(response.json().get("agenda"))
+        self.assertEqual(agenda.sections[2].topics[2], getTopicFromJson(new_topic))
+
+        data = response.json()
+        print(data)
+
+    def test_deleteSection(self):
+        params = {"agenda_id": self.agenda_id}
+        response = requests.post(self.basic_url + "delete-section", json=params)
+        self.assertEqual(response.json().get("response"), 400)
+
+        params = {"agenda_id": "5e8d8b26ad0789ce0a9d84b9", "section_position": 0}
+        response = requests.post(self.basic_url + "delete-section", json=params)
+        self.assertEqual(response.json().get("response"), 404)
+
+        params = {"agenda_id": self.agenda_id, "section_position": 7}
+        response = requests.post(self.basic_url + "delete-section", json=params)
+        self.assertEqual(response.json().get("response"), 501)
+
+        params = {"agenda_id": self.agenda_id, "section_name": "New-Section"}
+        response = requests.post(self.basic_url + "create-section", json=params)
+        old_agenda = getAgendaFromJson(response.json().get("agenda"))
+
+        params = {"agenda_id": self.agenda_id, "section_position": 0}
+        response = requests.post(self.basic_url + "delete-section", json=params)
+        data = response.json()
+        self.assertEqual(data.get("response"), 200)
+
+        new_agenda = getAgendaFromJson(data.get("agenda"))
+        self.assertNotEqual(old_agenda.sections[0].topics[0], new_agenda.sections[0].topics[0])
+
+        print(data)
+
     def tearDown(self) -> None:
         params = {"id": self.agenda_id}
         response = requests.post(self.basic_url + "delete-agenda", json=params)

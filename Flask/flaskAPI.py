@@ -145,5 +145,50 @@ def deleteTopic():
         return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
+@app.route("/update-topic", methods=['POST'])
+def updateTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position, topic_json
+    :return:
+    """
+    data = request.json
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.updateTopic(data.get("agenda_id"),
+                                                                       data.get("section_position"),
+                                                                       data.get("topic_position"),
+                                                                       data.get("topic_json"))
+            if responseWrapper.found:
+                if responseWrapper.operationDone:
+                    return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+                else:
+                    return jsonify(response=501, msg="Update Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="Υou didn't send all the necessary information")
+
+
+@app.route("/delete-section", methods=['POST'])
+def deleteSection():
+    """
+    In request I expect agenda_id, section_position
+    :return:
+    """
+    data = request.json
+    if "agenda_id" in data and "section_position" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.deleteSection(data.get("agenda_id"),
+                                                                            data.get("section_position"))
+            if responseWrapper.operationDone:
+                return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+            else:
+                return jsonify(response=501, msg="Delete Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
+
+
 if __name__ == '__main__':
     app.run()
