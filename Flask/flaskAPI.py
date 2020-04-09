@@ -31,7 +31,7 @@ def getAgendaByID():
     In request I expect a string of ID
     :return: a object agenda as json + response
     """
-    objectAgenda = getAgendaFromJson(connectToMongo.getAgendaById(request.json.get("id")))
+    objectAgenda = getAgendaFromJson(connectToMongo.getAgendaById(request.json.get("agenda_id")))
     return jsonify(response=200, agenda=objectAgenda.makeJson())
 
 
