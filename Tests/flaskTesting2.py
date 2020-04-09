@@ -87,15 +87,15 @@ class FlaskTesting(unittest.TestCase):
     def test_deleteTopic(self):
         params = {"agenda_id": self.agenda_id, "section_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
-        self.assertTrue(response.json().get("response"), 400)
+        self.assertEqual(response.json().get("response"), 400)
 
-        params = {"agenda_id": "5e8d8b26ad0789ce0a9d84b6", "section_position": 0, "topic_position": 0}
+        params = {"agenda_id": "123456789012345678901234", "section_position": 0, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
-        self.assertTrue(response.json().get("response"), 404)
+        self.assertEqual(response.json().get("response"), 404)
 
         params = {"agenda_id": self.agenda_id, "section_position": 7, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
-        self.assertTrue(response.json().get("response"), 501)
+        self.assertEqual(response.json().get("response"), 501)
 
         new_topic = {'topic_name': 'Tichu', 'votable': False}
         topic_params = {"id": self.agenda_id, "section_position": 0, "topic_position": 0, "topic_json": new_topic}
@@ -105,12 +105,10 @@ class FlaskTesting(unittest.TestCase):
         params = {"agenda_id": self.agenda_id, "section_position": 0, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
         data = response.json()
-        self.assertTrue(data.get("response"), 200)
+        self.assertEqual(data.get("response"), 200)
 
         new_agenda = getAgendaFromJson(data.get("agenda"))
         self.assertNotEqual(old_agenda.sections[0].topics[0], new_agenda.sections[0].topics[0])
-
-        print(data)
 
     def tearDown(self) -> None:
         params = {"id": self.agenda_id}

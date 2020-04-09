@@ -5,16 +5,15 @@ from BasicClasses.Agenda import *
 from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
 
-database = "lcThessaloniki"
-url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
 
 class connectMongo:
 
-    def __init__(self):
+    def __init__(self, database="lcThessaloniki"):
         """
         Connection to database with credentials and get an object of mongoclient
         """
-        self.client = MongoClient(url, authSource="admin")['lcThessaloniki']
+        url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
+        self.client = MongoClient(url, authSource="admin")[database]
         self.db = self.client.lcThessaloniki
 
     def getAllDatabasesFromLC(self):
@@ -40,7 +39,7 @@ class connectMongo:
         objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
         id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
         object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return ResponseWrapper(object,found=True,operationDone=True)
+        return ResponseWrapper(object, found=True, operationDone=True)
 
     def getAgendaById(self, agenda_id) -> ResponseWrapper:
         """
@@ -52,7 +51,7 @@ class connectMongo:
         if jsonReturned is None:
             return ResponseWrapper(None)
         object = getAgendaFromJson(jsonReturned)
-        return ResponseWrapper(object,found=True,operationDone=True)
+        return ResponseWrapper(object, found=True, operationDone=True)
 
     def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
@@ -62,7 +61,8 @@ class connectMongo:
         :return: ResponseWrapper
         """
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
-        return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True, operationDone=bool(returned.matched_count))
+        return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,
+                               operationDone=bool(returned.matched_count))
 
     def updateSection(self, agenda_id, section_position, section_json) -> Optional[ResponseWrapper]:
         """
@@ -73,9 +73,10 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.setSection(section_position,getSectionFromJson(section_json))
+        objectAgenda.setSection(section_position, getSectionFromJson(section_json))
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def updateTopic(self, agenda_id, section_position, topic_position, topic_json) -> Optional[ResponseWrapper]:
@@ -88,9 +89,10 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.setTopic(section_position,topic_position,getTopicFromJson(topic_json))
+        objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def createNewSection(self, agenda_id, section_name):
@@ -101,9 +103,11 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.addSection(section_name)
+        addedSection = objectAgenda.addSection(section_name)
+        if not addedSection: return ResponseWrapper(objectAgenda, found=False, operationDone=False)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True, operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def createNewSectionInPosition(self, agenda_id, section_name, position):
@@ -117,7 +121,8 @@ class connectMongo:
         objectAgenda = self.getAgendaById(agenda_id).object
         objectAgenda.addSectionInPosition(section_name, position)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda,found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def createNewTopic(self, agenda_id, section_position, topic_position, topic_json):
@@ -132,7 +137,8 @@ class connectMongo:
         objectAgenda = self.getAgendaById(agenda_id).object
         objectAgenda.addTopicInPosition(section_position, getTopicFromJson(topic_json), topic_position)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda,found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def deleteAgenda(self, agenda_id):
@@ -143,7 +149,8 @@ class connectMongo:
         """
         agendaWrapper = self.getAgendaById(agenda_id)
         returned = self.db.agendas.delete_many({'id': agenda_id})
-        return ResponseWrapper(agendaWrapper.object,found=agendaWrapper.found,operationDone=bool(returned.deleted_count))
+        return ResponseWrapper(agendaWrapper.object, found=agendaWrapper.found,
+                               operationDone=bool(returned.deleted_count))
 
     def deleteSection(self, agenda_id, position):
         """
@@ -155,7 +162,8 @@ class connectMongo:
         objectAgenda = self.getAgendaById(agenda_id).object
         objectAgenda.deleteSection(position)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda,found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count))
         return responseWrapper
 
     def deleteTopic(self, agenda_id, section_position, topic_position):
@@ -167,9 +175,10 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.deleteTopic(section_position, topic_position)
+        done = objectAgenda.deleteTopic(section_position, topic_position)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda,found=True,operationDone=bool(returned.matched_count))
+        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                           operationDone=bool(returned.matched_count) and done)
         return responseWrapper
 
     def deleteAll(self):
@@ -179,3 +188,8 @@ class connectMongo:
         """
         return self.db.agendas.drop()
 
+
+'''
+mongo = connectMongo()
+print(mongo.getAllDatabasesFromLC())
+'''
