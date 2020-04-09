@@ -36,11 +36,14 @@ class connectMongo:
         :param json_agenda
         :return: ResponseWrapper
         """
-        objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
-        id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
-        object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return ResponseWrapper(object, found=True,
-                               operationDone=True)  # TODO: try except statement if everything went ok
+        try:
+            objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
+            id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
+            object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
+            return ResponseWrapper(object, found=True,
+                                   operationDone=True)
+        except:
+            return ResponseWrapper(None)
 
     def getAgendaById(self, agenda_id) -> ResponseWrapper:
         """

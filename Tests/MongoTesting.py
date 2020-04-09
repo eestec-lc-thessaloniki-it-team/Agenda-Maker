@@ -119,6 +119,7 @@ class MongoTesting(unittest.TestCase):
 
     def test_createNewSection(self):
         createdResponseWrapper = self.mongo.createNewAgenda(self.testAgenda2)
+        self.mongo.updateAgenda(createdResponseWrapper.object.id,self.testAgenda2)
         responseWrapper = self.mongo.createNewSection(createdResponseWrapper.object.id, 'TestSectionName')
         print(responseWrapper.object.sections)
         self.assertTrue(responseWrapper.found)
@@ -127,12 +128,12 @@ class MongoTesting(unittest.TestCase):
         self.assertEqual(responseWrapper.object.lc, "Thessaloniki")
         self.assertEqual(responseWrapper.object.sections[0].section_name, "TestSectionName")
         self.assertEqual(responseWrapper.object.sections[0].topics, [])
-        # self.assertEqual(responseWrapper.object.sections[1].section_name, "Testing1")
-        # self.assertEqual(responseWrapper.object.sections[0].topics[0].topic_name, "Topic1")
-        # self.assertTrue(responseWrapper.object.sections[0].topics[0].votable)
-        # self.assertTrue(responseWrapper.object.sections[0].topics[0].yes_no_vote)
-        # self.assertFalse(responseWrapper.object.sections[0].topics[0].open_ballot)
-        # self.assertEqual(responseWrapper.object.sections[1].section_name, "TestSectionName")
+        self.assertEqual(responseWrapper.object.sections[1].section_name, "Testing1")
+        self.assertEqual(responseWrapper.object.sections[0].topics[0].topic_name, "Topic1")
+        self.assertTrue(responseWrapper.object.sections[0].topics[0].votable)
+        self.assertTrue(responseWrapper.object.sections[0].topics[0].yes_no_vote)
+        self.assertFalse(responseWrapper.object.sections[0].topics[0].open_ballot)
+        self.assertEqual(responseWrapper.object.sections[1].section_name, "TestSectionName")
 
 
 """
