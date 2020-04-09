@@ -42,15 +42,14 @@ def createSection():
     :return:
     """
     # first check if everything we need is there
-    print(request)
     data = request.json
-    if "id" in data and "section_name" in data:
+    if "agenda_id" in data and "section_name" in data:
         if "position" in data:
-            object = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
-                                                               data.get("position"))
+            responseWrapper = connectToMongo.createNewSectionInPosition(data.get("agenda_id"), data.get("section_name"),
+                                                                        data.get("position"))
         else:
-            object = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
-        return jsonify(response=200, agenda=object.makeJson())
+            responseWrapper = connectToMongo.createNewSection(data.get("agenda_id"), data.get("section_name"))
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
@@ -62,10 +61,11 @@ def createTopic():
     :return:
     """
     data = request.json
-    if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        object = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
-                                               data.get("topic_json"))
-        return jsonify(response=200, agenda=object.makeJson())
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        responseWrapper = connectToMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
+                                                        data.get("topic_position"),
+                                                        data.get("topic_json"))
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
@@ -77,8 +77,8 @@ def updateAgenda():
     :return:
     """
     data = request.json
-    if "id" in data and "new_agenda" in data:
-        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+    if "agenda_id" in data and "new_agenda" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("agenda_id"), data.get("new_agenda"))
         if not responseWrapper.found:
             return jsonify(response=404, msg="Agenda not found")
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
@@ -93,11 +93,103 @@ def deleteAgenda():
     :return:
     """
     data = request.json
-    if "id" in data:
-        connectToMongo.deleteAgenda(data.get("id"))
+    if "agenda_id" in data:
+        connectToMongo.deleteAgenda(data.get("agenda_id"))
         return jsonify(response=200, msg="Agenda has been deleted")
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
+
+
+@app.route("/update-section", methods=['POST'])
+def updateSection():
+    """
+    In request I expect agenda_id, section_position, section_json
+    :return:
+    """
+
+    data = request.json
+    if "agenda_id" in data and "section_position" in data and "section_json" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("agenda_id"),
+                                                                            data.get("section_position"),
+                                                                            data.get("section_json"))
+            if getSectionFromJson(
+                    data.get("section_json")) in responseWrapper.object.sections:  # maybe should be done on mongo?
+                return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+            else:
+                return jsonify(response=501, msg="Update Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="Υou didn't send all the necessary information")
+
+
+@app.route("/delete-topic", methods=['POST'])
+def deleteTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position
+    :return:
+    """
+
+    data = request.json
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("agenda_id"),
+                                                                          data.get("section_position"),
+                                                                          data.get("topic_position"))
+            if responseWrapper.operationDone:
+                return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+            else:
+                return jsonify(response=501, msg="Delete Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
+
+
+@app.route("/update-topic", methods=['POST'])
+def updateTopic():
+    """
+    In request I expect agenda_id, section_position, topic_position, topic_json
+    :return:
+    """
+    data = request.json
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.updateTopic(data.get("agenda_id"),
+                                                                          data.get("section_position"),
+                                                                          data.get("topic_position"),
+                                                                          data.get("topic_json"))
+            if responseWrapper.found:
+                if responseWrapper.operationDone:
+                    return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+                else:
+                    return jsonify(response=501, msg="Update Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="Υou didn't send all the necessary information")
+
+
+@app.route("/delete-section", methods=['POST'])
+def deleteSection():
+    """
+    In request I expect agenda_id, section_position
+    :return:
+    """
+    data = request.json
+    if "agenda_id" in data and "section_position" in data:
+        if connectToMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper: ResponseWrapper = connectToMongo.deleteSection(data.get("agenda_id"),
+                                                                            data.get("section_position"))
+            if responseWrapper.operationDone:
+                return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+            else:
+                return jsonify(response=501, msg="Delete Failed")
+        else:
+            return jsonify(response=404, msg="Agenda not found")
+    else:
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
 if __name__ == '__main__':

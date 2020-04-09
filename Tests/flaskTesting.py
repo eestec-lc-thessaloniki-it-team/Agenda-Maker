@@ -11,7 +11,3 @@ class FlaskTesting(unittest.TestCase):
         response = requests.post(self.basic_url + "create-agenda", json=params)
         data = response.json()
         print(data)
-
-
-if __name__ == '__main__':
-    unittest.main()

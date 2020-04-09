@@ -55,7 +55,7 @@ class AgendaTesting(unittest.TestCase):
         self.section4 = Section("Quarantine Games", self.TichuTopic)
         self.sections = [self.section1, self.section2, self.section3]
 
-        self.agenda = Agenda("23-3-20", "001", "Thessaloniki", self.sections)
+        self.agenda = Agenda("23-3-20", "Thessaloniki", "001", self.sections)
 
     def test_makeJson(self):
         self.assertDictEqual(self.agenda.makeJson(), self.json)
