@@ -52,6 +52,7 @@ class connectMongo:
         if jsonReturned is None:
             return ResponseWrapper(None)
         object = getAgendaFromJson(jsonReturned)
+        object.id = agenda_id
         return ResponseWrapper(object, found=True, operationDone=True)
 
     def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
