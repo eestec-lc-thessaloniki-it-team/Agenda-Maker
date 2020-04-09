@@ -95,7 +95,7 @@ class FlaskTesting(unittest.TestCase):
 
         params = {"agenda_id": self.agenda_id, "section_position": 7, "topic_position": 0}
         response = requests.post(self.basic_url + "delete-topic", json=params)
-        self.assertEqual(response.json().get("response"), 501)  # TODO: change to return 4** when operation is not done
+        self.assertEqual(response.json().get("response"), 501)
 
         new_topic = {'topic_name': 'Tichu', 'votable': False}
         topic_params = {"id": self.agenda_id, "section_position": 0, "topic_position": 0, "topic_json": new_topic}
