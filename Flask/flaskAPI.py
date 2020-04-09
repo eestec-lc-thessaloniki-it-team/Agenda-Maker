@@ -43,12 +43,12 @@ def createSection():
     """
     # first check if everything we need is there
     data = request.json
-    if "id" in data and "section_name" in data:
+    if "agenda_id" in data and "section_name" in data:
         if "position" in data:
-            responseWrapper = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
-                                                               data.get("position"))
+            responseWrapper = connectToMongo.createNewSectionInPosition(data.get("agenda_id"), data.get("section_name"),
+                                                                        data.get("position"))
         else:
-            responseWrapper = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
+            responseWrapper = connectToMongo.createNewSection(data.get("agenda_id"), data.get("section_name"))
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
@@ -61,9 +61,10 @@ def createTopic():
     :return:
     """
     data = request.json
-    if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        responseWrapper = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
-                                               data.get("topic_json"))
+    if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
+        responseWrapper = connectToMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
+                                                        data.get("topic_position"),
+                                                        data.get("topic_json"))
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
@@ -76,8 +77,8 @@ def updateAgenda():
     :return:
     """
     data = request.json
-    if "id" in data and "new_agenda" in data:
-        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+    if "agenda_id" in data and "new_agenda" in data:
+        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("agenda_id"), data.get("new_agenda"))
         if not responseWrapper.found:
             return jsonify(response=404, msg="Agenda not found")
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
@@ -92,8 +93,8 @@ def deleteAgenda():
     :return:
     """
     data = request.json
-    if "id" in data:
-        connectToMongo.deleteAgenda(data.get("id"))
+    if "agenda_id" in data:
+        connectToMongo.deleteAgenda(data.get("agenda_id"))
         return jsonify(response=200, msg="Agenda has been deleted")
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
@@ -112,7 +113,8 @@ def updateSection():
             responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("agenda_id"),
                                                                             data.get("section_position"),
                                                                             data.get("section_json"))
-            if getSectionFromJson(data.get("section_json")) in responseWrapper.object.sections:
+            if getSectionFromJson(
+                    data.get("section_json")) in responseWrapper.object.sections:  # maybe should be done on mongo?
                 return jsonify(response=200, agenda=responseWrapper.object.makeJson())
             else:
                 return jsonify(response=501, msg="Update Failed")
@@ -135,7 +137,7 @@ def deleteTopic():
             responseWrapper: ResponseWrapper = connectToMongo.deleteTopic(data.get("agenda_id"),
                                                                           data.get("section_position"),
                                                                           data.get("topic_position"))
-            if responseWrapper.operationDone: # TODO: error in mongo always returns true till now
+            if responseWrapper.operationDone:
                 return jsonify(response=200, agenda=responseWrapper.object.makeJson())
             else:
                 return jsonify(response=501, msg="Delete Failed")
@@ -155,9 +157,9 @@ def updateTopic():
     if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
         if connectToMongo.getAgendaById(data.get("agenda_id")).found:
             responseWrapper: ResponseWrapper = connectToMongo.updateTopic(data.get("agenda_id"),
-                                                                       data.get("section_position"),
-                                                                       data.get("topic_position"),
-                                                                       data.get("topic_json"))
+                                                                          data.get("section_position"),
+                                                                          data.get("topic_position"),
+                                                                          data.get("topic_json"))
             if responseWrapper.found:
                 if responseWrapper.operationDone:
                     return jsonify(response=200, agenda=responseWrapper.object.makeJson())

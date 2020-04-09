@@ -39,7 +39,8 @@ class connectMongo:
         objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
         id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
         object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-        return ResponseWrapper(object, found=True, operationDone=True)
+        return ResponseWrapper(object, found=True,
+                               operationDone=True)  # TODO: try except statement if everything went ok
 
     def getAgendaById(self, agenda_id) -> ResponseWrapper:
         """
@@ -89,10 +90,14 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+        done = objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
+        if done:
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            operationDone = bool(returned.matched_count)
+        else:
+            operationDone = False
         responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
+                                                           operationDone=operationDone)
         return responseWrapper
 
     def createNewSection(self, agenda_id, section_name):
@@ -160,10 +165,10 @@ class connectMongo:
         :return: ResponseWrapper
         """
         objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.deleteSection(position)
+        done = objectAgenda.deleteSection(position)
         returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
         responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
+                                                           operationDone=bool(returned.matched_count) and done)
         return responseWrapper
 
     def deleteTopic(self, agenda_id, section_position, topic_position):
