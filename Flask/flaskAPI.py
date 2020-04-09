@@ -6,7 +6,7 @@ from BasicClasses.Agenda import *
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-connectToMongo = connectMongo()  # connection to mongo
+connectMongo = connectMongo()  # connection to mongo
 print(APP_ROOT)
 
 
@@ -21,8 +21,12 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    responseWrapper: ResponseWrapper = connectToMongo.createNewAgenda(request.json)
-    return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+    data = request.json
+    if "date" in data and "lc" in data:
+        responseWrapper: ResponseWrapper = connectMongo.createNewAgenda(request.json)
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+    else:
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
 @app.route("/get-agenda-id", methods=['GET'])
@@ -31,7 +35,7 @@ def getAgendaByID():
     In request I expect a string of ID
     :return: a object agenda as json + response
     """
-    objectAgenda = getAgendaFromJson(connectToMongo.getAgendaById(request.json.get("id")))
+    objectAgenda = getAgendaFromJson(connectMongo.getAgendaById(request.json.get("id")))
     return jsonify(response=200, agenda=objectAgenda.makeJson())
 
 
@@ -46,11 +50,12 @@ def createSection():
     data = request.json
     if "id" in data and "section_name" in data:
         if "position" in data:
-            object = connectToMongo.createNewSectionInPosition(data.get("id"), data.get("section_name"),
-                                                               data.get("position"))
+            responseWrapper: ResponseWrapper = connectMongo.createNewSectionInPosition(data.get("id"),
+                                                                                       data.get("section_name"),
+                                                                                       data.get("position"))
         else:
-            object = connectToMongo.createNewSection(data.get("id"), data.get("section_name"))
-        return jsonify(response=200, agenda=object.makeJson())
+            responseWrapper: ResponseWrapper = connectMongo.createNewSection(data.get("id"), data.get("section_name"))
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
@@ -63,9 +68,10 @@ def createTopic():
     """
     data = request.json
     if "id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        object = connectToMongo.createNewTopic(data.get("id"), data.get("section_position"), data.get("topic_position"),
-                                               data.get("topic_json"))
-        return jsonify(response=200, agenda=object.makeJson())
+        responseWrapper: ResponseWrapper = connectMongo.createNewTopic(data.get("id"), data.get("section_position"),
+                                                                       data.get("topic_position"),
+                                                                       data.get("topic_json"))
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
 
@@ -78,7 +84,7 @@ def updateAgenda():
     """
     data = request.json
     if "id" in data and "new_agenda" in data:
-        responseWrapper: ResponseWrapper = connectToMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
+        responseWrapper: ResponseWrapper = connectMongo.updateAgenda(data.get("id"), data.get("new_agenda"))
         if not responseWrapper.found:
             return jsonify(response=404, msg="Agenda not found")
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
@@ -94,7 +100,7 @@ def deleteAgenda():
     """
     data = request.json
     if "id" in data:
-        connectToMongo.deleteAgenda(data.get("id"))
+        connectMongo.deleteAgenda(data.get("id"))
         return jsonify(response=200, msg="Agenda has been deleted")
     else:
         return jsonify(respose=400, msg="you didn't sent all the necessary information")
