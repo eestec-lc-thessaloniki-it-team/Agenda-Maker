@@ -65,19 +65,19 @@ class FlaskTesting(unittest.TestCase):
 
         params = {"agenda_id": self.agenda_id, "section_position": 0}
         response = requests.post(self.basic_url + "update-section", json=params)
-        self.assertTrue(response.json().get("response"), 400)
+        self.assertEqual(response.json().get("response"), 400)
 
-        params = {"agenda_id": "5e8d8b26ad0789ce0a9d84b6", "section_position": 0, "section_json": new_section}
+        params = {"agenda_id": "123456789012345678901234", "section_position": 0, "section_json": new_section}
         response = requests.post(self.basic_url + "update-section", json=params)
-        self.assertTrue(response.json().get("response"), 404)
+        self.assertEqual(response.json().get("response"), 404)
 
         params = {"agenda_id": self.agenda_id, "section_position": 7, "section_json": new_section}
         response = requests.post(self.basic_url + "update-section", json=params)
-        self.assertTrue(response.json().get("response"), 501)
+        self.assertEqual(response.json().get("response"), 501)
 
         params = {"agenda_id": self.agenda_id, "section_position": 0, "section_json": new_section}
         response = requests.post(self.basic_url + "update-section", json=params)
-        self.assertTrue(response.json().get("response"), 200)
+        self.assertEqual(response.json().get("response"), 200)
         agenda = getAgendaFromJson(response.json().get("agenda"))
         self.assertEqual(agenda.sections[0], getSectionFromJson(new_section))
 
