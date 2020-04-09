@@ -112,7 +112,7 @@ def updateSection():
             responseWrapper: ResponseWrapper = connectToMongo.updateSection(data.get("agenda_id"),
                                                                             data.get("section_position"),
                                                                             data.get("section_json"))
-            if responseWrapper.operationDone:
+            if getSectionFromJson(data.get("section_json")) in responseWrapper.object.sections:
                 return jsonify(response=200, agenda=responseWrapper.object.makeJson())
             else:
                 return jsonify(response=501, msg="Update Failed")
