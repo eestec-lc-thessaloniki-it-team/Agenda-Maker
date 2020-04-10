@@ -12,9 +12,12 @@ class connectMongo:
         """
         Connection to database with credentials and get an object of mongoclient
         """
+        if type(database) is not str:
+            raise TypeError('database must be of type string')
         url = """mongodb://{}:{}@116.203.85.249/{}""".format(mongo.user.username, mongo.user.password, database)
         self.client = MongoClient(url, authSource="admin")[database]
         self.db = self.client.lcThessaloniki
+
 
     def getAllDatabasesFromLC(self):
         """
@@ -36,12 +39,13 @@ class connectMongo:
         :param json_agenda
         :return: ResponseWrapper
         """
+        if type(json_agenda) is not dict:
+            raise TypeError('json_agenda must be of type dict')
         try:
             objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
-            id = self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id
-            object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), str(id))
-            return ResponseWrapper(object, found=True,
-                                   operationDone=True)
+            agenda_id = str(self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id)
+            object = Agenda(json_agenda.get("date"), json_agenda.get("lc"), agenda_id)
+            return ResponseWrapper(object, found=True, operationDone=True)
         except:
             return ResponseWrapper(None)
 
@@ -51,12 +55,17 @@ class connectMongo:
         :param agenda_id:
         :return: ResponseWrapper
         """
-        jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
-        if jsonReturned is None:
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        try:
+            jsonReturned = self.db.agendas.find_one({'_id': ObjectId(agenda_id)})
+            if jsonReturned is None:
+                return ResponseWrapper(None)
+            object = getAgendaFromJson(jsonReturned)
+            object.id = agenda_id
+            return ResponseWrapper(object, found=True, operationDone=True)
+        except:
             return ResponseWrapper(None)
-        object = getAgendaFromJson(jsonReturned)
-        object.id = agenda_id
-        return ResponseWrapper(object, found=True, operationDone=True)
 
     def updateAgenda(self, agenda_id, new_agenda) -> Optional[ResponseWrapper]:
         """
@@ -65,9 +74,15 @@ class connectMongo:
         :param new_agenda:
         :return: ResponseWrapper
         """
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
-        return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,
-                               operationDone=bool(returned.matched_count))
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(new_agenda) is not dict:
+            raise TypeError('new_agenda must be of type dict')
+        try:
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
+            return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,operationDone=bool(returned.matched_count))
+        except:
+            return ResponseWrapper(None)
 
     def updateSection(self, agenda_id, section_position, section_json) -> Optional[ResponseWrapper]:
         """
@@ -77,12 +92,22 @@ class connectMongo:
         :param section_json:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.setSection(section_position, getSectionFromJson(section_json))
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_position) is not int:
+            raise TypeError('section_position must be of type int')
+        if type(section_json) is not dict:
+            raise TypeError('section_json must be of type dict')
+
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            objectAgenda.setSection(section_position, getSectionFromJson(section_json))
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count))
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def updateTopic(self, agenda_id, section_position, topic_position, topic_json) -> Optional[ResponseWrapper]:
         """
@@ -93,16 +118,27 @@ class connectMongo:
         :param topic_json:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        done = objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
-        if done:
-            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-            operationDone = bool(returned.matched_count)
-        else:
-            operationDone = False
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=operationDone)
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_position) is not int:
+            raise TypeError('section_position must be of type int')
+        if type(topic_position) is not int:
+            raise TypeError('topic_position must be of type int')
+        if type(topic_json) is not dict:
+            raise TypeError('topic_json must be of type dict')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            done = objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
+            if done:
+                returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+                operationDone = bool(returned.matched_count)
+            else:
+                operationDone = False
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=operationDone)
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def createNewSection(self, agenda_id, section_name):
         """
@@ -111,13 +147,20 @@ class connectMongo:
         :param section_name:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        addedSection = objectAgenda.addSection(section_name)
-        if not addedSection: return ResponseWrapper(objectAgenda, found=False, operationDone=False)
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_name) is not str:
+            raise TypeError('section_name must be of type str')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            addedSection = objectAgenda.addSection(section_name)
+            if not addedSection: return ResponseWrapper(objectAgenda, found=False, operationDone=False)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count))
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def createNewSectionInPosition(self, agenda_id, section_name, position):
         """
@@ -127,12 +170,21 @@ class connectMongo:
         :param position:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.addSectionInPosition(section_name, position)
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_name) is not str:
+            raise TypeError('section_name must be of type str')
+        if type(position) is not int:
+            raise TypeError('position must be of type int')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            objectAgenda.addSectionInPosition(section_name, position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count))
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def createNewTopic(self, agenda_id, section_position, topic_position, topic_json):
         """
@@ -143,12 +195,23 @@ class connectMongo:
         :param topic_json:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        objectAgenda.addTopicInPosition(section_position, getTopicFromJson(topic_json), topic_position)
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count))
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_position) is not int:
+            raise TypeError('section_position must be of type int')
+        if type(topic_position) is not int:
+            raise TypeError('topic_position must be of type int')
+        if type(topic_json) is not dict:
+            raise TypeError('topic_json must be of type dict')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            objectAgenda.addTopicInPosition(section_position, getTopicFromJson(topic_json), topic_position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count))
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def deleteAgenda(self, agenda_id):
         """
@@ -156,10 +219,14 @@ class connectMongo:
         :param agenda_id:
         :return: ResponseWrapper
         """
-        agendaWrapper = self.getAgendaById(agenda_id)
-        returned = self.db.agendas.delete_many({'id': agenda_id})
-        return ResponseWrapper(agendaWrapper.object, found=agendaWrapper.found,
-                               operationDone=bool(returned.deleted_count))
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        try:
+            agendaWrapper = self.getAgendaById(agenda_id)
+            returned = self.db.agendas.delete_many({'_id': ObjectId(agenda_id)})
+            return ResponseWrapper(agendaWrapper.object, found=agendaWrapper.found, operationDone=bool(returned.deleted_count))
+        except:
+            return ResponseWrapper(None)
 
     def deleteSection(self, agenda_id, position):
         """
@@ -168,12 +235,19 @@ class connectMongo:
         :param position:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        done = objectAgenda.deleteSection(position)
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count) and done)
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(position) is not int:
+            raise TypeError('position must be of type int')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            done = objectAgenda.deleteSection(position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count) and done)
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def deleteTopic(self, agenda_id, section_position, topic_position):
         """
@@ -183,12 +257,21 @@ class connectMongo:
         :param topic_position:
         :return: ResponseWrapper
         """
-        objectAgenda = self.getAgendaById(agenda_id).object
-        done = objectAgenda.deleteTopic(section_position, topic_position)
-        returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
-        responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
-                                                           operationDone=bool(returned.matched_count) and done)
-        return responseWrapper
+        if type(agenda_id) is not str:
+            raise TypeError('agenda_id must be of type str')
+        if type(section_position) is not int:
+            raise TypeError('section_position must be of type int')
+        if type(topic_position) is not int:
+            raise TypeError('topic_position must be of type int')
+        try:
+            objectAgenda = self.getAgendaById(agenda_id).object
+            done = objectAgenda.deleteTopic(section_position, topic_position)
+            returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': objectAgenda.makeJson()})
+            responseWrapper: ResponseWrapper = ResponseWrapper(objectAgenda, found=True,
+                                                               operationDone=bool(returned.matched_count) and done)
+            return responseWrapper
+        except:
+            return ResponseWrapper(None)
 
     def deleteAll(self):
         """
@@ -198,7 +281,16 @@ class connectMongo:
         return self.db.agendas.drop()
 
 
-'''
+# print(type(Agenda('13/7/2013','lcThessaloniki','',[])))
 mongo = connectMongo()
-print(mongo.getAllDatabasesFromLC())
-'''
+a = mongo.createNewAgenda({"date": "10/05/2020", "lc": "thessaloniki"})
+print(mongo.updateAgenda(a.object.id,{"date": "10/05/2020", "lc": "thessaloniki"}))
+mongo.updateTopic(a.object.id,0,0,
+                    {
+                        "topic_name": "Topic1",
+                        "votable": True,
+                        "yes_no_vote": True,
+                        "open_ballot": False
+                    })
+
+mongo.createNewSection(a.object.id,True)
