@@ -281,16 +281,18 @@ class connectMongo:
         return self.db.agendas.drop()
 
 
+# DON'T TOUCH OUR STAFF HERE!!
+#
 # print(type(Agenda('13/7/2013','lcThessaloniki','',[])))
-mongo = connectMongo()
-a = mongo.createNewAgenda({"date": "10/05/2020", "lc": "thessaloniki"})
-print(mongo.updateAgenda(a.object.id,{"date": "10/05/2020", "lc": "thessaloniki"}))
-mongo.updateTopic(a.object.id,0,0,
-                    {
-                        "topic_name": "Topic1",
-                        "votable": True,
-                        "yes_no_vote": True,
-                        "open_ballot": False
-                    })
-
-mongo.createNewSection(a.object.id,True)
+# mongo = connectMongo()
+# a = mongo.createNewAgenda({"date": "10/05/2020", "lc": "thessaloniki"})
+# print(mongo.updateAgenda(a.object.id,{"date": "10/05/2020", "lc": "thessaloniki"}))
+# mongo.updateTopic(a.object.id,0,0,
+#                     {
+#                         "topic_name": "Topic1",
+#                         "votable": True,
+#                         "yes_no_vote": True,
+#                         "open_ballot": False
+#                     })
+#
+# mongo.createNewSection(a.object.id,True)
