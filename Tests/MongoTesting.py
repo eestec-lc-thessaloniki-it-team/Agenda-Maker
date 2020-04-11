@@ -94,6 +94,10 @@ class MongoTesting(unittest.TestCase):
                         "open_ballot": False
                     }
 
+        self.createdWrapper = self.mongo.createNewAgenda(self.testJson)
+
+
+
 
     def test_getAllDatabasesFromLc(self):
         self.assertEqual(self.mongo.getAllDatabasesFromLC(), ['lcThessaloniki.agendas'])
@@ -102,30 +106,30 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of getAgendaById function
         """
-        responseWrapper = self.mongo.createNewAgenda(self.testJson)
-        wrapper = ResponseWrapper(responseWrapper.object, True, True)
-        x = self.mongo.getAgendaById(responseWrapper.object.id)
-        self.assertEqual(x.object, wrapper.object)
-        self.assertTrue(x.found)
-        self.assertTrue(x.operationDone)
+        responseWrapper = self.mongo.getAgendaById(self.createdWrapper.object.id)
+        self.assertEqual(responseWrapper.object, self.createdWrapper.object)
+        self.assertTrue(responseWrapper.found)
+        self.assertTrue(responseWrapper.operationDone)
+        responseWrapper = self.mongo.getAgendaById('123456789')
+        self.assertIsNone(responseWrapper.object)
+        self.assertFalse(responseWrapper.found)
+        self.assertFalse(responseWrapper.operationDone)
 
     def test_createAgenda(self):
         """
         Tested all arguments of self.testJson3 after creating an agenda
         """
-        responseWrapper = self.mongo.createNewAgenda(self.testJson3)
-        self.assertEqual(responseWrapper.object.date, "10/05/2020")
-        self.assertEqual(responseWrapper.object.lc, "thessaloniki")
-        self.assertEqual(responseWrapper.object.sections, [])
-        self.assertTrue(responseWrapper.found)
-        self.assertTrue(responseWrapper.operationDone)
+        self.assertEqual(self.createdWrapper.object.date, "09/05/2020")
+        self.assertEqual(self.createdWrapper.object.lc, "LcThessaloniki")
+        self.assertEqual(self.createdWrapper.object.sections, [])
+        self.assertTrue(self.createdWrapper.found)
+        self.assertTrue(self.createdWrapper.operationDone)
 
     def test_updateAgenda(self):
         """
         Tested all arguments of self.testJson2 after updating an agenda
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson)
-        responseWrapper = self.mongo.updateAgenda(createdWrapper.object.id, self.testJson2)
+        responseWrapper = self.mongo.updateAgenda(self.createdWrapper.object.id, self.testJson2)
         self.assertEqual(responseWrapper.object.date, "11/05/2020")
         self.assertEqual(responseWrapper.object.lc, "Thessaloniki")
         self.assertEqual(responseWrapper.object.sections[0].section_name, "Testing1")
@@ -140,9 +144,8 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of self.testJson2 after creating a section
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson2)
-        self.mongo.updateAgenda(createdWrapper.object.id,self.testJson2)
-        responseWrapper = self.mongo.createNewSection(createdWrapper.object.id, 'TestSectionName')
+        self.mongo.updateAgenda(self.createdWrapper.object.id,self.testJson2)
+        responseWrapper = self.mongo.createNewSection(self.createdWrapper.object.id, 'TestSectionName')
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         self.assertEqual(responseWrapper.object.date, "11/05/2020")
@@ -160,9 +163,8 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of self.testJson2 after creating a section in position
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson2)
-        self.mongo.updateAgenda(createdWrapper.object.id,self.testJson2)
-        responseWrapper = self.mongo.createNewSectionInPosition(createdWrapper.object.id, 'TestSectionName',0)
+        self.mongo.updateAgenda(self.createdWrapper.object.id,self.testJson2)
+        responseWrapper = self.mongo.createNewSectionInPosition(self.createdWrapper.object.id, 'TestSectionName',0)
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         self.assertEqual(responseWrapper.object.date, "11/05/2020")
@@ -180,9 +182,8 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of self.testJson2 after creating a topic
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson2)
-        self.mongo.updateAgenda(createdWrapper.object.id, self.testJson2)
-        responseWrapper = self.mongo.createNewTopic(createdWrapper.object.id, 0, 0, self.topic)
+        self.mongo.updateAgenda(self.createdWrapper.object.id, self.testJson2)
+        responseWrapper = self.mongo.createNewTopic(self.createdWrapper.object.id, 0, 0, self.topic)
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         self.assertEqual(responseWrapper.object.date, "11/05/2020")
@@ -202,9 +203,8 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of self.testJson after deleting an agenda
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson)
-        responseWrapper= self.mongo.deleteAgenda(createdWrapper.object.id)
-        self.assertEqual(responseWrapper.object,createdWrapper.object)
+        responseWrapper= self.mongo.deleteAgenda(self.createdWrapper.object.id)
+        self.assertEqual(responseWrapper.object,self.createdWrapper.object)
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         a = self.mongo.getAgendaById(responseWrapper.object.id)
@@ -216,9 +216,8 @@ class MongoTesting(unittest.TestCase):
         """
         Tested all arguments of self.testJson after deleting a section
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson)
-        self.mongo.updateAgenda(createdWrapper.object.id, self.testJson)
-        responseWrapper = self.mongo.deleteSection(createdWrapper.object.id,2)
+        self.mongo.updateAgenda(self.createdWrapper.object.id, self.testJson)
+        responseWrapper = self.mongo.deleteSection(self.createdWrapper.object.id,2)
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         self.assertEqual(responseWrapper.object.date, "09/05/2020")
@@ -243,15 +242,27 @@ class MongoTesting(unittest.TestCase):
         self.assertFalse(responseWrapper.object.sections[1].topics[1].yes_no_vote)
         self.assertEqual(responseWrapper.object.sections[1].topics[1].possible_answers,["Cancellation", "Postpone", "Proceed"])
         self.assertTrue(responseWrapper.object.sections[1].topics[1].open_ballot)
+        responseWrapper = self.mongo.deleteSection(self.createdWrapper.object.id, 0)
+        self.assertEqual(responseWrapper.object.sections[0].section_name, 'WorkShop')
+        self.assertEqual(responseWrapper.object.sections[0].topics[0].topic_name, "openVote")
+        self.assertTrue(responseWrapper.object.sections[0].topics[0].votable)
+        self.assertTrue(responseWrapper.object.sections[0].topics[0].yes_no_vote)
+        self.assertFalse(responseWrapper.object.sections[0].topics[0].open_ballot)
+        self.assertEqual(responseWrapper.object.sections[0].topics[1].topic_name, "Future of Workshop")
+        self.assertTrue(responseWrapper.object.sections[0].topics[1].votable)
+        self.assertFalse(responseWrapper.object.sections[0].topics[1].yes_no_vote)
+        self.assertEqual(responseWrapper.object.sections[0].topics[1].possible_answers,["Cancellation", "Postpone", "Proceed"])
+        self.assertTrue(responseWrapper.object.sections[0].topics[1].open_ballot)
+        self.mongo.deleteSection(self.createdWrapper.object.id, 0)
+
 
 
     def test_deleteTopic(self):
         """
         Tested all arguments of self.testJson after deleting a topic
         """
-        createdWrapper = self.mongo.createNewAgenda(self.testJson)
-        self.mongo.updateAgenda(createdWrapper.object.id, self.testJson)
-        responseWrapper = self.mongo.deleteTopic(createdWrapper.object.id, 2,1)
+        self.mongo.updateAgenda(self.createdWrapper.object.id, self.testJson)
+        responseWrapper = self.mongo.deleteTopic(self.createdWrapper.object.id, 2,1)
         self.assertTrue(responseWrapper.found)
         self.assertTrue(responseWrapper.operationDone)
         self.assertEqual(responseWrapper.object.date, "09/05/2020")
@@ -288,6 +299,29 @@ class MongoTesting(unittest.TestCase):
         self.assertTrue(responseWrapper.object.sections[2].topics[1].open_ballot)
         self.assertEqual(responseWrapper.object.sections[2].topics[2].topic_name,'Lets go')
         self.assertFalse(responseWrapper.object.sections[2].topics[2].votable)
+
+    def test_value(self):
+        """
+        Tested all the argument types provided to the methods
+        """
+        self.assertRaises(TypeError, self.mongo.createNewAgenda, True)
+        self.assertRaises(ValueError,self.mongo.createNewAgenda, {'lc':'Thessaloniki'})
+        self.assertRaises(ValueError,self.mongo.createNewAgenda, {'lc':'Thessaloniki','date':'2020-03-06'})
+        self.assertRaises(TypeError, self.mongo.getAgendaById, True)
+        self.assertRaises(TypeError, self.mongo.updateAgenda, True, True)
+        self.assertRaises(TypeError, self.mongo.updateSection, 23, 0, 'json')
+        self.assertRaises(TypeError, self.mongo.updateTopic, False, 'str', True, 1)
+        self.assertRaises(TypeError, self.mongo.createNewSection, 'str', 0)
+        self.assertRaises(TypeError, self.mongo.createNewSectionInPosition, '15', 0, 0)
+        self.assertRaises(TypeError, self.mongo.createNewTopic, True, 0,0,0)
+        self.assertRaises(TypeError, self.mongo.deleteAgenda, 1251)
+        self.assertRaises(TypeError, self.mongo.deleteSection, True, 'str')
+
+    def tearDown(self) -> None:
+        """
+        Lets clean this up!
+        """
+        self.mongo.deleteAgenda(self.createdWrapper.object.id)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ from datetime import date
 from BasicClasses.Agenda import *
 from BasicClasses.ResponseWrapper import ResponseWrapper
 import mongo.user
+import re
 
 
 class connectMongo:
@@ -41,6 +42,21 @@ class connectMongo:
         """
         if type(json_agenda) is not dict:
             raise TypeError('json_agenda must be of type dict')
+        if 'date' not in json_agenda:
+            raise ValueError('json_agenda doesnt contain date field')
+        if 'lc' not in json_agenda:
+            raise ValueError('json_agenda doesnt contain lc field')
+        if 'sections' not in json_agenda:
+            raise ValueError('json_agenda doesnt contain sections field')
+        if type(json_agenda['date']) is not str:
+            raise TypeError('date must be of type str')
+        if not bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",json_agenda['date'])):
+            raise ValueError('date must be of format dd/mm/yyyy')
+        if type(json_agenda['lc']) is not str:
+            raise TypeError('lc must be of type str')
+        if type(json_agenda['sections']) is not list:
+            raise TypeError('sections must be of type dict')
+
         try:
             objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
             agenda_id = str(self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id)
@@ -281,18 +297,11 @@ class connectMongo:
         return self.db.agendas.drop()
 
 
+
 # DON'T TOUCH OUR STAFF HERE!!
-#
-# print(type(Agenda('13/7/2013','lcThessaloniki','',[])))
+
 # mongo = connectMongo()
-# a = mongo.createNewAgenda({"date": "10/05/2020", "lc": "thessaloniki"})
-# print(mongo.updateAgenda(a.object.id,{"date": "10/05/2020", "lc": "thessaloniki"}))
-# mongo.updateTopic(a.object.id,0,0,
-#                     {
-#                         "topic_name": "Topic1",
-#                         "votable": True,
-#                         "yes_no_vote": True,
-#                         "open_ballot": False
-#                     })
-#
-# mongo.createNewSection(a.object.id,True)
+# print(mongo.getAllAgendas())
+
+# date="03-01-2017"
+# print(bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",date)))
