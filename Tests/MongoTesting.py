@@ -90,7 +90,7 @@ class MongoTesting(unittest.TestCase):
         self.topic = {
                         "topic_name": "TestTopicName",
                         "votable": True,
-                        "yes_no_vote": False,
+                        "yes_no_vote": True,
                         "open_ballot": False
                     }
 
@@ -191,7 +191,7 @@ class MongoTesting(unittest.TestCase):
         self.assertEqual(responseWrapper.object.sections[0].section_name, 'Testing1')
         self.assertEqual(responseWrapper.object.sections[0].topics[0].topic_name, "TestTopicName")
         self.assertTrue(responseWrapper.object.sections[0].topics[0].votable)
-        self.assertFalse(responseWrapper.object.sections[0].topics[0].yes_no_vote)
+        self.assertTrue(responseWrapper.object.sections[0].topics[0].yes_no_vote)
         self.assertFalse(responseWrapper.object.sections[0].topics[0].open_ballot)
         self.assertEqual(responseWrapper.object.sections[0].topics[1].topic_name, "Topic1")
         self.assertTrue(responseWrapper.object.sections[0].topics[1].votable)

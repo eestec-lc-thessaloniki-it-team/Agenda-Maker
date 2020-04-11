@@ -162,24 +162,22 @@ class connectMongo:
             raise ValueError('topic_json does not contain topic_name field')
         if 'votable' not in topic_json:
             raise ValueError('topic_json does not contain votable field')
-        if type(topic_json['votable']) is True:
-            if topic_json['yes_no_vote'] not in topic_json:
-                raise ValueError('topic_json doesnt contain yes_no_vote field')
+        if topic_json['votable'] is True:
+            if ('yes_no_vote' or 'open_ballot') not in topic_json:
+                raise ValueError('topic_json doesnt contain yes_no_vote or open_ballot field')
             else:
                 if topic_json['yes_no_vote'] is True:
-                    if topic_json['possible_answers'] in topic_json:
+                    if 'possible_answers' in topic_json:
                         raise ImportError('It is a YES/NO Vote, do not insert possible_answers field')
                 elif topic_json['yes_no_vote'] is False:
-                    if topic_json['possible_answers'] not in topic_json:
+                    if 'possible_answers' not in topic_json:
                         raise ImportError('topic_json does not contain possible_answers')
                 else:
                     raise TypeError('yes_no_vote must be of type bool')
-            if topic_json['open_ballot'] not in topic_json:
-                raise ValueError('topic_json does not contain open_ballot field')
             if type(topic_json['open_ballot']) is not bool:
                 raise TypeError('open_ballot must be of type bool')
-        elif type(topic_json['votable']) is False:
-            if (topic_json['yes_no_vote'] or topic_json['possible_answers'] or topic_json['open_ballot']) in topic_json:
+        elif topic_json['votable'] is False:
+            if ('yes_no_vote' or 'possible_answers' or 'open_ballot') in topic_json:
                 raise ImportError('It is not a votable topic, do not insert yes_no_vote, possible_answers and open_ballot fields')
         else:
             raise TypeError('votable must be of type bool')
@@ -265,28 +263,27 @@ class connectMongo:
             raise ValueError('topic_json does not contain topic_name field')
         if 'votable' not in topic_json:
             raise ValueError('topic_json does not contain votable field')
-        if type(topic_json['votable']) is True:
-            if topic_json['yes_no_vote'] not in topic_json:
-                raise ValueError('topic_json doesnt contain yes_no_vote field')
+        if topic_json['votable'] is True:
+            if ('yes_no_vote' or 'open_ballot') not in topic_json:
+                raise ValueError('topic_json doesnt contain yes_no_vote or open_ballot field')
             else:
                 if topic_json['yes_no_vote'] is True:
-                    if topic_json['possible_answers'] in topic_json:
+                    if 'possible_answers' in topic_json:
                         raise ImportError('It is a YES/NO Vote, do not insert possible_answers field')
                 elif topic_json['yes_no_vote'] is False:
-                    if topic_json['possible_answers'] not in topic_json:
+                    if 'possible_answers' not in topic_json:
                         raise ImportError('topic_json does not contain possible_answers')
                 else:
                     raise TypeError('yes_no_vote must be of type bool')
-            if topic_json['open_ballot'] not in topic_json:
+            if 'open_ballot' not in topic_json:
                 raise ValueError('topic_json does not contain open_ballot field')
             if type(topic_json['open_ballot']) is not bool:
                 raise TypeError('open_ballot must be of type bool')
-        elif type(topic_json['votable']) is False:
-            if (topic_json['yes_no_vote'] or topic_json['possible_answers'] or topic_json['open_ballot']) in topic_json:
-                raise ImportError('It is not a votable topic, do not insert yes_no_vote, possible_answers, open_ballot fields')
-        # ERROR HERE
-        # else:
-        #     raise TypeError('votable must be of type bool')
+        elif topic_json['votable'] is False:
+            if ('yes_no_vote' or 'possible_answers' or 'open_ballot') in topic_json:
+                raise ImportError('It is not a votable topic, do not insert yes_no_vote, possible_answers and open_ballot fields')
+        else:
+            raise TypeError('votable must be of type bool')
 
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
@@ -368,9 +365,13 @@ class connectMongo:
 
 
 # DON'T TOUCH OUR STAFF HERE!!
-
+#
 # mongo = connectMongo()
+# a = mongo.createNewAgenda({"date": '09/05/2020', "lc": "LcThessaloniki", "sections": []})
+# mongo.createNewSection(a.object.id,'tr')
+# mongo.createNewTopic(a.object.id,0,0,{"topic_name": "openGmStaffEl", "votable": False, 'yes_no_vote': False,"open_ballot": True})
+#
 # print(mongo.getAllAgendas())
-
+#
 # date="03-01-2017"
 # print(bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",date)))
