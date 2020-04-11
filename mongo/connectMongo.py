@@ -56,7 +56,6 @@ class connectMongo:
             raise TypeError('lc must be of type str')
         if type(json_agenda['sections']) is not list:
             raise TypeError('sections must be of type dict')
-
         try:
             objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
             agenda_id = str(self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id)
@@ -94,6 +93,20 @@ class connectMongo:
             raise TypeError('agenda_id must be of type str')
         if type(new_agenda) is not dict:
             raise TypeError('new_agenda must be of type dict')
+        if 'date' not in new_agenda:
+            raise ValueError('new_agenda doesnt contain date field')
+        if 'lc' not in new_agenda:
+            raise ValueError('new_agenda doesnt contain lc field')
+        if 'sections' not in new_agenda:
+            raise ValueError('new_agenda doesnt contain sections field')
+        if type(new_agenda['date']) is not str:
+            raise TypeError('date must be of type str')
+        if not bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",new_agenda['date'])):
+            raise ValueError('date must be of format dd/mm/yyyy')
+        if type(new_agenda['lc']) is not str:
+            raise TypeError('lc must be of type str')
+        if type(new_agenda['sections']) is not list:
+            raise TypeError('sections must be of type dict')
         try:
             returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
             return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,operationDone=bool(returned.matched_count))
@@ -114,7 +127,10 @@ class connectMongo:
             raise TypeError('section_position must be of type int')
         if type(section_json) is not dict:
             raise TypeError('section_json must be of type dict')
-
+        if 'section_name' not in section_json:
+            raise ValueError('section_json doesnt contain sections field')
+        if type(section_json['section_name']) is not str:
+            raise TypeError('section_name must be of type str')
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
             objectAgenda.setSection(section_position, getSectionFromJson(section_json))
@@ -142,6 +158,32 @@ class connectMongo:
             raise TypeError('topic_position must be of type int')
         if type(topic_json) is not dict:
             raise TypeError('topic_json must be of type dict')
+        if 'topic_name' not in topic_json:
+            raise ValueError('topic_json does not contain topic_name field')
+        if 'votable' not in topic_json:
+            raise ValueError('topic_json does not contain votable field')
+        if type(topic_json['votable']) is True:
+            if topic_json['yes_no_vote'] not in topic_json:
+                raise ValueError('topic_json doesnt contain yes_no_vote field')
+            else:
+                if topic_json['yes_no_vote'] is True:
+                    if topic_json['possible_answers'] in topic_json:
+                        raise ImportError('It is a YES/NO Vote, do not insert possible_answers field')
+                elif topic_json['yes_no_vote'] is False:
+                    if topic_json['possible_answers'] not in topic_json:
+                        raise ImportError('topic_json does not contain possible_answers')
+                else:
+                    raise TypeError('yes_no_vote must be of type bool')
+            if topic_json['open_ballot'] not in topic_json:
+                raise ValueError('topic_json does not contain open_ballot field')
+            if type(topic_json['open_ballot']) is not bool:
+                raise TypeError('open_ballot must be of type bool')
+        elif type(topic_json['votable']) is False:
+            if (topic_json['yes_no_vote'] or topic_json['possible_answers'] or topic_json['open_ballot']) in topic_json:
+                raise ImportError('It is not a votable topic, do not insert yes_no_vote, possible_answers and open_ballot fields')
+        else:
+            raise TypeError('votable must be of type bool')
+
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
             done = objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
@@ -219,6 +261,33 @@ class connectMongo:
             raise TypeError('topic_position must be of type int')
         if type(topic_json) is not dict:
             raise TypeError('topic_json must be of type dict')
+        if 'topic_name' not in topic_json:
+            raise ValueError('topic_json does not contain topic_name field')
+        if 'votable' not in topic_json:
+            raise ValueError('topic_json does not contain votable field')
+        if type(topic_json['votable']) is True:
+            if topic_json['yes_no_vote'] not in topic_json:
+                raise ValueError('topic_json doesnt contain yes_no_vote field')
+            else:
+                if topic_json['yes_no_vote'] is True:
+                    if topic_json['possible_answers'] in topic_json:
+                        raise ImportError('It is a YES/NO Vote, do not insert possible_answers field')
+                elif topic_json['yes_no_vote'] is False:
+                    if topic_json['possible_answers'] not in topic_json:
+                        raise ImportError('topic_json does not contain possible_answers')
+                else:
+                    raise TypeError('yes_no_vote must be of type bool')
+            if topic_json['open_ballot'] not in topic_json:
+                raise ValueError('topic_json does not contain open_ballot field')
+            if type(topic_json['open_ballot']) is not bool:
+                raise TypeError('open_ballot must be of type bool')
+        elif type(topic_json['votable']) is False:
+            if (topic_json['yes_no_vote'] or topic_json['possible_answers'] or topic_json['open_ballot']) in topic_json:
+                raise ImportError('It is not a votable topic, do not insert yes_no_vote, possible_answers, open_ballot fields')
+        # ERROR HERE
+        # else:
+        #     raise TypeError('votable must be of type bool')
+
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
             objectAgenda.addTopicInPosition(section_position, getTopicFromJson(topic_json), topic_position)
