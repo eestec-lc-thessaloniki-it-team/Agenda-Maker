@@ -57,7 +57,7 @@ def createSection():
                 responseWrapper = connectMongo.createNewSection(data.get("agenda_id"), data.get("section_name"))
             return jsonify(response=200, agenda=responseWrapper.object.makeJson())
         else:
-            return jsonify(respose=404, msg="Agenda not found")
+            return jsonify(response=404, msg="Agenda not found")
     else:
         return jsonify(response=400, msg="Υou didn't send all the necessary information")
 
@@ -75,7 +75,7 @@ def createTopic():
                                                       data.get("topic_json"))
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
-        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
 @app.route("/update-agenda", methods=['POST'])
@@ -91,7 +91,7 @@ def updateAgenda():
             return jsonify(response=404, msg="Agenda not found")
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
-        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
 @app.route("/delete-agenda", methods=['POST'])
@@ -105,7 +105,7 @@ def deleteAgenda():
         connectMongo.deleteAgenda(data.get("agenda_id"))
         return jsonify(response=200, msg="Agenda has been deleted")
     else:
-        return jsonify(respose=400, msg="you didn't sent all the necessary information")
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
 
 
 @app.route("/update-section", methods=['POST'])
