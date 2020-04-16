@@ -46,6 +46,10 @@ class connectMongo:
             raise ValueError('json_agenda doesnt contain date field')
         if 'lc' not in json_agenda:
             raise ValueError('json_agenda doesnt contain lc field')
+
+        if 'sections' not in json_agenda:
+            raise ValueError('json_agenda doesnt contain sections field')
+
         if type(json_agenda['date']) is not str:
             raise TypeError('date must be of type str')
         if not bool(
@@ -54,6 +58,10 @@ class connectMongo:
             raise ValueError('date must be of format dd/mm/yyyy')
         if type(json_agenda['lc']) is not str:
             raise TypeError('lc must be of type str')
+
+        if type(json_agenda['sections']) is not list:
+            raise TypeError('sections must be of type dict')
+
         try:
             objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
             agenda_id = str(self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id)
