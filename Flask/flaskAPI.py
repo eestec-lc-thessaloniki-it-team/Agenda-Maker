@@ -21,17 +21,19 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    data = request.json
-    if "date" in data and "lc" in data:
+    try:
         responseWrapper: ResponseWrapper = connectMongo.createNewAgenda(request.json)
-
-        if responseWrapper.operationDone:
-            return jsonify(response=200, agenda=responseWrapper.object.makeJson())
-        else:
-            # can't get through here
-            return jsonify(response=500, msg="Creation Failed")
-    else:
+    except ValueError as valueError:
+        print(valueError)
         return jsonify(response=400, msg="you didn't sent all the necessary information")
+    except TypeError as typeError:
+        return jsonify(response=400, msg="you didn't contain the right")
+
+    if responseWrapper.operationDone:
+        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+    else:
+        # can't get through here
+        return jsonify(response=500, msg="Creation Failed")
 
 
 @app.route("/get-agenda-id", methods=['GET'])
