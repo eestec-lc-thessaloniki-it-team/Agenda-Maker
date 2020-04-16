@@ -24,7 +24,12 @@ def createAgenda():
     data = request.json
     if "date" in data and "lc" in data:
         responseWrapper: ResponseWrapper = connectMongo.createNewAgenda(request.json)
-        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+
+        if responseWrapper.operationDone:
+            return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+        else:
+            # can't get through here
+            return jsonify(response=500, msg="Creation Failed")
     else:
         return jsonify(response=400, msg="you didn't sent all the necessary information")
 
@@ -70,10 +75,13 @@ def createTopic():
     """
     data = request.json
     if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        responseWrapper = connectMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
-                                                      data.get("topic_position"),
-                                                      data.get("topic_json"))
-        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+        if connectMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper = connectMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
+                                                          data.get("topic_position"),
+                                                          data.get("topic_json"))
+            return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+        else:
+            return jsonify(response=404, msg="Agenda not found")
     else:
         return jsonify(response=400, msg="you didn't sent all the necessary information")
 
