@@ -8,7 +8,7 @@ class FlaskTesting(unittest.TestCase):
     def setUp(self) -> None:
         self.basic_url = "http://127.0.0.1:5000/"
 
-        agenda_params = {"date": "23-03-20", "lc": "Thessaloniki"}
+        agenda_params = {"date": "03-01-2017", "lc": "Thessaloniki"}
         response = requests.post(self.basic_url + "create-agenda", json=agenda_params)
 
         self.agenda_id = response.json().get("agenda").get("id")
@@ -100,7 +100,7 @@ class FlaskTesting(unittest.TestCase):
         self.assertEqual(response.json().get("response"), 200)
 
         agenda = getAgendaFromJson(response.json().get("agenda"))
-        self.assertEqual(agenda.sections[0], "Beers")
+        self.assertEqual(agenda.sections[-1].section_name, "Beers")
 
     def teardown(self) -> None:
         params = {"agenda_id": self.agenda_id}
