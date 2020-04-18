@@ -49,7 +49,7 @@ class connectMongo:
         if type(json_agenda['date']) is not str:
             raise TypeError('date must be of type str')
         if not bool(
-                re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
+                re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
                           json_agenda['date'])):  # TODO: it is not working for days 23-03-2020
             raise ValueError('date must be of format dd/mm/yyyy or dd-mm-yyyy')
         if type(json_agenda['lc']) is not str:
@@ -100,7 +100,7 @@ class connectMongo:
         if type(new_agenda['date']) is not str:
             raise TypeError('date must be of type str')
         if not bool(
-                re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
+                re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
                           new_agenda['date'])):  # TODO: move it as variable in the beginning and change message
             raise ValueError('date must be of format dd/mm/yyyy')
         if type(new_agenda['lc']) is not str:
@@ -372,11 +372,11 @@ class connectMongo:
 # DON'T TOUCH OUR STAFF HERE!!
 #
 # mongo = connectMongo()
-# a = mongo.createNewAgenda({"date": '09/05/2020', "lc": "LcThessaloniki", "sections": []})
+# a = mongo.createNewAgenda({"date": '29/05/2020', "lc": "LcThessaloniki", "sections": []})
 # mongo.createNewSection(a.object.id,'tr')
 # mongo.createNewTopic(a.object.id,0,0,{"topic_name": "openGmStaffEl", "votable": "False", 'yes_no_vote': False,"open_ballot": True})
 #
 # print(mongo.getAllAgendas())
 #
-# date="03-01-2017"
-# print(bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",date)))
+# date="23-01-2017"
+# print(bool(re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",date)))
