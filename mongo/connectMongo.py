@@ -50,7 +50,7 @@ class connectMongo:
             raise TypeError('date must be of type str')
         if not bool(
                 re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|\|)([1-9]|0?[1-9]|1[0-2])(/|.|-|\|)20[0-9][0-9]$",
-                          json_agenda['date'])):  # TODO: DONE
+                          json_agenda['date'])):
             raise ValueError('date must be of format dd/mm/yyyy or dd-mm-yyyy or dd.mm.yyyy or dd\\mm\\yyyy')
         if type(json_agenda['lc']) is not str:
             raise TypeError('lc must be of type str')
@@ -101,7 +101,7 @@ class connectMongo:
             raise TypeError('date must be of type str')
         if not bool(
                 re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
-                          new_agenda['date'])):  # TODO: DONE
+                          new_agenda['date'])):
             raise ValueError('date must be of format dd/mm/yyyy or dd.mm.yyyy dd\\mm\\yyyy')
         if type(new_agenda['lc']) is not str:
             raise TypeError('lc must be of type str')
@@ -167,7 +167,7 @@ class connectMongo:
             raise TypeError('topic_name must be of type str')
         if type(topic_json["votable"]) is not bool:
             raise TypeError('votable must be of type bool')
-        # RIP
+
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
             done = objectAgenda.setTopic(section_position, topic_position, getTopicFromJson(topic_json))
@@ -189,8 +189,6 @@ class connectMongo:
         :param section_name:
         :return: ResponseWrapper
         """
-        #TODO : check if exists
-
         if type(agenda_id) is not str:
             raise TypeError('agenda_id must be of type str')
         if type(section_name) is not str:
@@ -214,7 +212,6 @@ class connectMongo:
         :param position:
         :return: ResponseWrapper
         """
-        # TODO : check if exists
         if type(agenda_id) is not str:
             raise TypeError('agenda_id must be of type str')
         if type(section_name) is not str:
@@ -256,7 +253,7 @@ class connectMongo:
             raise TypeError('topic_name must be of type str')
         if type(topic_json["votable"]) is not bool:
             raise TypeError('votable must be of type bool')
-        # Also RIP
+
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
             objectAgenda.addTopicInPosition(section_position, getTopicFromJson(topic_json), topic_position)
@@ -334,21 +331,3 @@ class connectMongo:
         :return: empty list
         """
         return self.db.agendas.drop()
-
-# DON'T TOUCH OUR STAFF HERE!!
-#
-# mongo = connectMongo()
-# a = mongo.createNewAgenda()
-# a = mongo.createNewAgenda({"date": '29/05/2020', "lc": "LcThessaloniki", "sections": []})
-# mongo.createNewSection(a.object.id,'tr')
-# mongo.createNewTopic(a.object.id,0,0,{"topic_name": "openGmStaffEl", "votable": "False", 'yes_no_vote': False,"open_ballot": True})
-#
-# print(mongo.getAllAgendas())
-#
-# date="23\\01\\2017"
-# if not (bool(re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|\|)([1-9]|0?[1-9]|1[0-2])(/|.|-|\|)20[0-9][0-9]$",date))):
-#     print("lathos date rreeeeeeee")
-# 23\03\2020
-# 23/03/2020
-# 23.03.2020
-# 23-03-2020
