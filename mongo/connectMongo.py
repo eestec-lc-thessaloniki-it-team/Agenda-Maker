@@ -20,15 +20,12 @@ class connectMongo:
         self.db = self.client.lcThessaloniki
         # ping database to see if connection exists
 
-
-
     def getAllDatabasesFromLC(self):
         """
         Returns all databases from this LC
         :return: database
         """
         return self.client.list_collection_names()
-
 
     def getAllAgendas(self):
         """
@@ -49,16 +46,14 @@ class connectMongo:
             raise ValueError('json_agenda doesnt contain date field')
         if 'lc' not in json_agenda:
             raise ValueError('json_agenda doesnt contain lc field')
-        # if 'sections' not in json_agenda:
-        #     raise ValueError('json_agenda doesnt contain sections field')
         if type(json_agenda['date']) is not str:
             raise TypeError('date must be of type str')
-        if not bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",json_agenda['date'])):
-            raise ValueError('date must be of format dd/mm/yyyy')
+        if not bool(
+                re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|\|)([1-9]|0?[1-9]|1[0-2])(/|.|-|\|)20[0-9][0-9]$",
+                          json_agenda['date'])):
+            raise ValueError('date must be of format dd/mm/yyyy or dd-mm-yyyy or dd.mm.yyyy or dd\\mm\\yyyy')
         if type(json_agenda['lc']) is not str:
             raise TypeError('lc must be of type str')
-        # if type(json_agenda['sections']) is not list:
-        #     raise TypeError('sections must be of type dict')
         try:
             objectAgenda = Agenda(json_agenda.get("date"), json_agenda.get("lc"))
             agenda_id = str(self.db.agendas.insert_one(objectAgenda.makeJson()).inserted_id)
@@ -104,15 +99,18 @@ class connectMongo:
             raise ValueError('new_agenda doesnt contain sections field')
         if type(new_agenda['date']) is not str:
             raise TypeError('date must be of type str')
-        if not bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",new_agenda['date'])):
-            raise ValueError('date must be of format dd/mm/yyyy')
+        if not bool(
+                re.search("^([1-9]|0?[1-9]|1[0-9]|2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",
+                          new_agenda['date'])):
+            raise ValueError('date must be of format dd/mm/yyyy or dd.mm.yyyy dd\\mm\\yyyy')
         if type(new_agenda['lc']) is not str:
             raise TypeError('lc must be of type str')
         if type(new_agenda['sections']) is not list:
             raise TypeError('sections must be of type dict')
         try:
             returned = self.db.agendas.update_one({'_id': ObjectId(agenda_id)}, {'$set': new_agenda})
-            return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,operationDone=bool(returned.matched_count))
+            return ResponseWrapper(self.getAgendaById(agenda_id).object, found=True,
+                                   operationDone=bool(returned.matched_count))
         except:
             return ResponseWrapper(None)
 
@@ -165,25 +163,10 @@ class connectMongo:
             raise ValueError('topic_json does not contain topic_name field')
         if 'votable' not in topic_json:
             raise ValueError('topic_json does not contain votable field')
+        if type(topic_json["topic_name"]) is not str:
+            raise TypeError('topic_name must be of type str')
         if type(topic_json["votable"]) is not bool:
             raise TypeError('votable must be of type bool')
-        if topic_json['votable'] is True:
-            if ('yes_no_vote' or 'open_ballot') not in topic_json:
-                raise ValueError('topic_json doesnt contain yes_no_vote or open_ballot field')
-            else:
-                if topic_json['yes_no_vote'] is True:
-                    if 'possible_answers' in topic_json:
-                        raise ValueError('It is a YES/NO Vote, do not insert possible_answers field')
-                elif topic_json['yes_no_vote'] is False:
-                    if 'possible_answers' not in topic_json:
-                        raise ValueError('topic_json does not contain possible_answers')
-                else:
-                    raise TypeError('yes_no_vote must be of type bool')
-            if type(topic_json['open_ballot']) is not bool:
-                raise TypeError('open_ballot must be of type bool')
-        else:
-            if ('yes_no_vote' or 'possible_answers' or 'open_ballot') in topic_json:
-                raise ValueError('It is not a votable topic, do not insert yes_no_vote, possible_answers and open_ballot fields')
 
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
@@ -266,27 +249,10 @@ class connectMongo:
             raise ValueError('topic_json does not contain topic_name field')
         if 'votable' not in topic_json:
             raise ValueError('topic_json does not contain votable field')
+        if type(topic_json["topic_name"]) is not str:
+            raise TypeError('topic_name must be of type str')
         if type(topic_json["votable"]) is not bool:
             raise TypeError('votable must be of type bool')
-        if topic_json['votable'] is True:
-            if ('yes_no_vote' or 'open_ballot') not in topic_json:
-                raise ValueError('topic_json doesnt contain yes_no_vote or open_ballot field')
-            else:
-                if topic_json['yes_no_vote'] is True:
-                    if 'possible_answers' in topic_json:
-                        raise ValueError('It is a YES/NO Vote, do not insert possible_answers field')
-                elif topic_json['yes_no_vote'] is False:
-                    if 'possible_answers' not in topic_json:
-                        raise ValueError('topic_json does not contain possible_answers')
-                else:
-                    raise TypeError('yes_no_vote must be of type bool')
-            if 'open_ballot' not in topic_json:
-                raise ValueError('topic_json does not contain open_ballot field')
-            if type(topic_json['open_ballot']) is not bool:
-                raise TypeError('open_ballot must be of type bool')
-        else:
-            if ('yes_no_vote' or 'possible_answers' or 'open_ballot') in topic_json:
-                raise ValueError('It is not a votable topic, do not insert yes_no_vote, possible_answers and open_ballot fields')
 
         try:
             objectAgenda = self.getAgendaById(agenda_id).object
@@ -309,7 +275,8 @@ class connectMongo:
         try:
             agendaWrapper = self.getAgendaById(agenda_id)
             returned = self.db.agendas.delete_many({'_id': ObjectId(agenda_id)})
-            return ResponseWrapper(agendaWrapper.object, found=agendaWrapper.found, operationDone=bool(returned.deleted_count))
+            return ResponseWrapper(agendaWrapper.object, found=agendaWrapper.found,
+                                   operationDone=bool(returned.deleted_count))
         except:
             return ResponseWrapper(None)
 
@@ -364,19 +331,3 @@ class connectMongo:
         :return: empty list
         """
         return self.db.agendas.drop()
-
-        
-
-
-
-# DON'T TOUCH OUR STAFF HERE!!
-#
-# mongo = connectMongo()
-# a = mongo.createNewAgenda({"date": '09/05/2020', "lc": "LcThessaloniki", "sections": []})
-# mongo.createNewSection(a.object.id,'tr')
-# mongo.createNewTopic(a.object.id,0,0,{"topic_name": "openGmStaffEl", "votable": "False", 'yes_no_vote': False,"open_ballot": True})
-#
-# print(mongo.getAllAgendas())
-#
-# date="03-01-2017"
-# print(bool(re.search("^([1-9]|0?[1-9]|1[0-9]| 2[0-9]|3[0-1])(/|.|-|)([1-9]|0?[1-9]|1[0-2])(/|.|-|)20[0-9][0-9]$",date)))

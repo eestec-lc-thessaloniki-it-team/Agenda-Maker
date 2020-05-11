@@ -21,12 +21,19 @@ def createAgenda():
     In request I expect date, lc
     :return: object Agenda + response
     """
-    data = request.json
-    if "date" in data and "lc" in data:
+    try:
         responseWrapper: ResponseWrapper = connectMongo.createNewAgenda(request.json)
+    except ValueError as valueError:
+        print(valueError)
+        return jsonify(response=400, msg="you didn't sent all the necessary information")
+    except TypeError as typeError:
+        return jsonify(response=400, msg="you didn't contain the right")
+
+    if responseWrapper.operationDone:
         return jsonify(response=200, agenda=responseWrapper.object.makeJson())
     else:
-        return jsonify(response=400, msg="you didn't sent all the necessary information")
+        # can't get through here
+        return jsonify(response=500, msg="Creation Failed")
 
 
 @app.route("/get-agenda-id", methods=['GET'])
@@ -70,10 +77,13 @@ def createTopic():
     """
     data = request.json
     if "agenda_id" in data and "section_position" in data and "topic_position" in data and "topic_json" in data:
-        responseWrapper = connectMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
-                                                      data.get("topic_position"),
-                                                      data.get("topic_json"))
-        return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+        if connectMongo.getAgendaById(data.get("agenda_id")).found:
+            responseWrapper = connectMongo.createNewTopic(data.get("agenda_id"), data.get("section_position"),
+                                                          data.get("topic_position"),
+                                                          data.get("topic_json"))
+            return jsonify(response=200, agenda=responseWrapper.object.makeJson())
+        else:
+            return jsonify(response=404, msg="Agenda not found")
     else:
         return jsonify(response=400, msg="you didn't sent all the necessary information")
 
