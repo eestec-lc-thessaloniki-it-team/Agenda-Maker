@@ -6,7 +6,7 @@ from BasicClasses.Agenda import *
 class FlaskTesting(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.basic_url = "http://127.0.0.1:5000/"
+        self.basic_url = "http://127.0.0.1:8000/agenda"
 
         agenda_params = {"date": "03-01-2017", "lc": "Thessaloniki"}
         response = requests.post(self.basic_url + "create-agenda", json=agenda_params)
